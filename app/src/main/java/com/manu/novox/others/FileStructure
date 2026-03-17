@@ -1,0 +1,63 @@
+com.manu.novox
+├── NovoxApp.kt
+├── MainActivity.kt
+├── others/
+    └── FileStructure.txt
+├── core/
+│   ├── theme/
+│   ├── navigation/
+│   └── utils/
+│
+├── di/
+│   ├── AppModule.kt
+│   ├── FirebaseModule.kt
+│   ├── DatabaseModule.kt
+│   └── RepositoryModule.kt
+│
+├── domain/
+│   ├── model/
+│   └── repository/
+│       ├── AuthRepository.kt
+│       └── ChatRepository.kt
+│
+├── data/
+│   ├── local/
+│   │   ├── NovoxDatabase.kt
+│   │   ├── dao/
+│   │   └── entity/
+│   └── repository/
+│       ├── AuthRepositoryImpl.kt
+│       └── ChatRepositoryImpl.kt
+│
+└── presentation/
+    │
+    ├── auth/
+    │   ├── AuthScreen.kt
+    │   ├── AuthViewModel.kt
+    │   ├── AuthState.kt
+    │   ├── AuthEvent.kt
+    │   └── AuthEffect.kt
+    │
+    ├── chatlist/
+    │   ├── ChatListScreen.kt
+    │   ├── ChatListViewModel.kt
+    │   ├── ChatListState.kt
+    │   ├── ChatListEvent.kt
+    │   ├── ChatListEffect.kt
+    │   └── components/
+    │
+    ├── chatroom/
+    │   ├── ChatScreen.kt
+    │   ├── ChatViewModel.kt
+    │   ├── ChatState.kt
+    │   ├── ChatEvent.kt
+    │   ├── ChatEffect.kt
+    │   └── components/
+    │
+    └── settings/
+        ├── SettingsScreen.kt
+        ├── SettingsViewModel.kt
+        ├── SettingsState.kt
+        ├── SettingsEvent.kt
+        ├── SettingsEffect.kt
+        └── components/
