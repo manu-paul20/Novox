@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Novox</string>
+    <string name="web_client_id"></string>
 </resources>
