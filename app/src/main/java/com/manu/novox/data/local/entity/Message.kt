@@ -5,8 +5,10 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "messages")
 data class Message(
-    val senderId: String,
-    @PrimaryKey val receiverId: String,
+
+    @PrimaryKey val messageId: String,
+    val chatId: String,
+    val senderUserName: String,
     val text: String,
     val image: String?,
     val timeStamp: Long

@@ -11,7 +11,8 @@ import com.manu.novox.core.utils.NovoxFontStyle
 data class UserSettings(
     @PrimaryKey val id: Int = 1,
     val fontFamily: NovoxFontFamily = NovoxFontFamily.Default,
-    val fontSize: Int = 14,
+    val textFontSize: Int = 14,
+    val appFontSize: Int = 14,
     val fontStyle: NovoxFontStyle = NovoxFontStyle.Normal,
     val myMessageBoxColor: NovoxColors = NovoxColors.Light_Blue,
     val myTextColor: NovoxColors = NovoxColors.White,

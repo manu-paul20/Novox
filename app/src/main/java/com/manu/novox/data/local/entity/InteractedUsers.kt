@@ -1,11 +1,11 @@
 package com.manu.novox.data.local.entity
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 @Entity(tableName = "interacted_users")
 data class InteractedUsers(
-    val id: String,
+    @PrimaryKey val userName: String,
     val name: String,
-    val userName: String,
     val profilePhoto: String,
 )

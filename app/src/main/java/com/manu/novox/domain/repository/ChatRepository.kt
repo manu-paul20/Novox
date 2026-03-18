@@ -1,9 +1,24 @@
 package com.manu.novox.domain.repository
 
 import com.manu.novox.data.local.entity.Message
+import kotlinx.coroutines.flow.Flow
+
 
 interface ChatRepository {
-    suspend fun addMessage(message: Message)
+    suspend fun deleteMessageFromChat(
+        messageId: String
+    )
 
-    suspend fun deleteMessage(message: Message)
+    fun getAllMessages(userName: String): Flow<List<Message>>
+
+
+    suspend fun addMessageToChat(
+        receiverUserName: String,
+        text: String?,
+        imageUrl: String?
+    )
+
+    suspend fun clearChat(
+        receiverUserName: String
+    )
 }

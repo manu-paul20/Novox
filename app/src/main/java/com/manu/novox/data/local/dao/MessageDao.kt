@@ -13,9 +13,9 @@ interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMessage(message: Message)
 
-    @Query("delete from messages where receiverId=:receiverId")
-    suspend fun deleteMessage(receiverId: String)
+    @Query("delete from messages where messageId=:messageId")
+    suspend fun deleteMessage(messageId: String)
 
-    @Query("select * from messages where receiverId=:receiverId")
-    fun getMessages(receiverId: String): Flow<List<Message>>
+    @Query("select * from messages where chatId=:chatId order by timeStamp asc")
+    fun getMessages(chatId: String): Flow<List<Message>>
 }
