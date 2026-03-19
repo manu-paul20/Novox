@@ -90,20 +90,27 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     suspend fun signInWithFirebase(idToken: String): SignInResult {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        val result = auth.signInWithCredential(credential).await()
-        val user = result.user
+        return try {
+            val credential = GoogleAuthProvider.getCredential(idToken, null)
+            val result = auth.signInWithCredential(credential).await()
+            val user = result.user
 
-        return user?.run {
+            return user?.run {
+                SignInResult(
+                    isSignInSuccessful = true,
+                    errorMessage = null
+                )
+            }
+                ?: SignInResult(
+                    isSignInSuccessful = false,
+                    errorMessage = "Something went wrong"
+                )
+        } catch (e: Exception) {
             SignInResult(
-                isSignInSuccessful = true,
-                errorMessage = null
+                isSignInSuccessful = false,
+                errorMessage = e.localizedMessage
             )
         }
-            ?: SignInResult(
-                isSignInSuccessful = false,
-                errorMessage = "Something went wrong"
-            )
     }
 
 }
