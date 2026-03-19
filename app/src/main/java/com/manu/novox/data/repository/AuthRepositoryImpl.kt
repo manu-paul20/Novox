@@ -22,7 +22,7 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun signInWithGoogle(context: Context): SignInResult {
         return try {
             val googleIdOption = GetGoogleIdOption.Builder()
-                .setServerClientId(MyConstants.WEB_CLIENT_ID)
+                .setServerClientId(MyConstants.FIREBASE.WEB_CLIENT_ID)
                 .setFilterByAuthorizedAccounts(false)
                 .build()
             val request = GetCredentialRequest.Builder()
