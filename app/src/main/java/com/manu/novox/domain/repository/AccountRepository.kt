@@ -7,10 +7,10 @@ interface AccountRepository {
     )
     suspend fun updateAccountDetails(
         name: String,
-        userName: String,
         profilePicture: String
     )
 
+    suspend fun changeProfilePhoto(newProfilePhoto: String): String
 
     suspend fun deleteAccount()
 }

@@ -1,6 +1,7 @@
 package com.manu.novox.data.local.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -18,4 +19,7 @@ interface UserDao {
 
     @Update
     suspend fun updateUserDetails(user: User)
+
+    @Delete
+    suspend fun deleteUser(user: User)
 }

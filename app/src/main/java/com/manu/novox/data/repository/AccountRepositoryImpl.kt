@@ -1,5 +1,6 @@
 package com.manu.novox.data.repository
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.manu.novox.data.local.NovoxDatabase
@@ -9,6 +10,9 @@ import com.manu.novox.domain.repository.AccountRepository
 import com.manu.novox.others.MyConstants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -45,14 +49,23 @@ class AccountRepositoryImpl @Inject constructor(
 
     override suspend fun updateAccountDetails(
         name: String,
-        userName: String,
         profilePicture: String
     ) {
-
+            val currentUser = userDao.getUserDetails().first()
+            val userRef = firebaseDB.getReference(MyConstants.DATABASE.USERS)
+            val newUser = currentUser.copy(
+                name = name,
+                profilePhoto = profilePicture
+            )
+            userRef.child(currentUser.userName).setValue(newUser)
+            userDao.updateUserDetails(newUser)
     }
 
     override suspend fun deleteAccount() {
-
+        val currentUser = userDao.getUserDetails().first()
+        val userRef = firebaseDB.getReference(MyConstants.DATABASE.USERS)
+        userRef.child(currentUser.userName).removeValue()
+        userDao.deleteUser(currentUser)
     }
 
 }

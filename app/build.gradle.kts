@@ -87,4 +87,7 @@ dependencies {
     //Room
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.runtime)
+
+    //Cloudinary
+    implementation(libs.cloudinary.android)
 }
