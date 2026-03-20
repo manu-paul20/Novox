@@ -16,6 +16,9 @@ interface MessageDao {
     @Query("delete from messages where messageId=:messageId")
     suspend fun deleteMessage(messageId: String)
 
+    @Query("delete from messages where chatId=:chatId")
+    suspend fun deleteAllMessages(chatId: String)
+
     @Query("select * from messages where chatId=:chatId order by timeStamp asc")
     fun getMessages(chatId: String): Flow<List<Message>>
 }

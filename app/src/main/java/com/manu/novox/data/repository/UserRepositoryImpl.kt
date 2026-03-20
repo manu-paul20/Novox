@@ -18,24 +18,18 @@ class UserRepositoryImpl @Inject constructor(
     private val interactedUsersDao: InteractedUsersDao,
     private val userDao: UserDao
 ): UserRepository {
-    override suspend fun addNewUserToChatList(userName: String) {
+    override suspend fun addNewUserToChatList(user: User) {
         //here we need to do only one thing
         //1. Add the new user to interacted user list
         try {
-            val userRef = database.getReference(MyConstants.DATABASE.USERS)
-            val userDataSnapshot = userRef.child(userName).get().await()
-            if (userDataSnapshot.exists()){
-                val user = userDataSnapshot.getValue(User::class.java)
                 interactedUsersDao.addUser(
                     user = InteractedUsers(
-                        name = user!!.name,
+                        name = user.name,
                         userName = user.userName,
                         profilePhoto = user.profilePhoto
                     )
                 )
-            }else{
-              throw Exception("user don't exist")
-            }
+
         } catch (e: Exception) {
             throw  e
         }
@@ -55,6 +49,21 @@ class UserRepositoryImpl @Inject constructor(
             interactedUsersDao.deleteUser(userName) //deleted from local db
         }catch (e: Exception){
             throw e
+        }
+    }
+
+    override suspend fun searchUser(userName: String): User {
+        try {
+            val userRef = database.getReference(MyConstants.DATABASE.USERS)
+            val userDataSnapshot = userRef.child(userName).get().await()
+            if (userDataSnapshot.exists()){
+                val user = userDataSnapshot.getValue(User::class.java)
+                return user!!
+            }else{
+                throw Exception("user don't exist")
+            }
+        } catch (e: Exception) {
+            throw  e
         }
     }
 
