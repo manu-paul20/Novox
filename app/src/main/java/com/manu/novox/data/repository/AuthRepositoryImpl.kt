@@ -85,8 +85,8 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun signOut() {
-        auth.signOut()
-        credentialManager.clearCredentialState(ClearCredentialStateRequest())
+            auth.signOut()
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
     }
 
     suspend fun signInWithFirebase(idToken: String): SignInResult {

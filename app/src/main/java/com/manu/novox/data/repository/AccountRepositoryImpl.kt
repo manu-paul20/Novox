@@ -127,4 +127,9 @@ class AccountRepositoryImpl @Inject constructor(
         cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap())
     }
 
+    override suspend fun getAccountDetails(): User {
+        val currentUser = userDao.getUserDetails().first()
+        return currentUser
+    }
+
 }
