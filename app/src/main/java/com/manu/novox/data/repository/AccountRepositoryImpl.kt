@@ -8,6 +8,7 @@ import com.cloudinary.android.callback.UploadCallback
 import com.cloudinary.utils.ObjectUtils
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.manu.novox.core.utils.uploadToCloudinary
 import com.manu.novox.data.local.dao.UserDao
 import com.manu.novox.data.local.entity.User
 import com.manu.novox.domain.repository.AccountRepository
@@ -72,50 +73,17 @@ class AccountRepositoryImpl @Inject constructor(
     }
 
     override suspend fun changeProfilePhoto(
-        newProfilePhoto: String
-    ): String {
+        newProfilePhoto: String,
+    ) {
         deleteProfilePhoto()
-        return suspendCancellableCoroutine { continuation ->
-            val request = MediaManager.get()
-                .upload(newProfilePhoto.toUri())
-                .callback(object : UploadCallback {
-                    override fun onStart(p0: String?) {
-
-                    }
-
-                    override fun onProgress(p0: String?, p1: Long, p2: Long) {
-
-                    }
-
-                    override fun onSuccess(p0: String?, p1: Map<*, *>?) {
-                        val profilePicture = p1?.get("secure_url").toString()
-                        if (continuation.isActive) {
-                            continuation.resume(profilePicture)
-                        }
-                    }
-
-                    override fun onError(
-                        p0: String?,
-                        p1: ErrorInfo?
-                    ) {
-                        if (continuation.isActive) {
-                            continuation.resumeWithException(
-                                Exception(p1?.description ?: "Something went wrong")
-                            )
-                        }
-                    }
-
-                    override fun onReschedule(
-                        p0: String?,
-                        p1: ErrorInfo?
-                    ) {
-
-                    }
-                }).dispatch()
-            continuation.invokeOnCancellation {
-                MediaManager.get().cancelRequest(request)
-            }
-        }
+        val newProfilePhoto = uploadToCloudinary(
+            photoUrl = newProfilePhoto,
+            onProgress = null
+        )
+        val currentUser = userDao.getUserDetails().first()
+        userDao.updateUserDetails(currentUser.copy(
+            profilePhoto = newProfilePhoto
+        ))
     }
 
     suspend fun deleteProfilePhoto(): Unit = withContext(Dispatchers.IO) {

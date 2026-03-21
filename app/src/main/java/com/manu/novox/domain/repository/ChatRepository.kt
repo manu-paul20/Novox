@@ -16,7 +16,8 @@ interface ChatRepository {
     suspend fun addMessageToChat(
         receiverUserName: String,
         text: String?,
-        imageUrl: String?
+        imageUrl: String?,
+        onProgress:(String)-> Unit
     )
 
     suspend fun clearChat(

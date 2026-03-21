@@ -5,12 +5,13 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import com.manu.novox.data.local.entity.Message
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MessageDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertMessage(message: Message)
 
     @Query("delete from messages where messageId=:messageId")

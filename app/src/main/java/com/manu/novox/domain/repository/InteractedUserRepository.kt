@@ -1,8 +1,10 @@
 package com.manu.novox.domain.repository
 
+import com.manu.novox.data.local.entity.InteractedUsers
 import com.manu.novox.data.local.entity.User
+import kotlinx.coroutines.flow.Flow
 
-interface UserRepository {
+interface InteractedUserRepository {
 
     suspend fun addNewUserToChatList(
        user: User
@@ -11,6 +13,8 @@ interface UserRepository {
     suspend fun deleteUserFromChatList(
         userName: String
     )
+
+     fun getAllUser(): Flow<List<InteractedUsers>>
 
     suspend fun searchUser(userName: String): User
 

@@ -1,23 +1,23 @@
 package com.manu.novox.data.repository
 
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.manu.novox.core.utils.getChatId
 import com.manu.novox.data.local.dao.InteractedUsersDao
 import com.manu.novox.data.local.dao.UserDao
 import com.manu.novox.data.local.entity.InteractedUsers
 import com.manu.novox.data.local.entity.User
-import com.manu.novox.domain.repository.UserRepository
+import com.manu.novox.domain.repository.InteractedUserRepository
 import com.manu.novox.others.MyConstants
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class UserRepositoryImpl @Inject constructor(
+class InteractedUserRepositoryImpl @Inject constructor(
     private val database: FirebaseDatabase,
     private val interactedUsersDao: InteractedUsersDao,
     private val userDao: UserDao
-): UserRepository {
+): InteractedUserRepository {
     override suspend fun addNewUserToChatList(user: User) {
         //here we need to do only one thing
         //1. Add the new user to interacted user list
@@ -26,7 +26,8 @@ class UserRepositoryImpl @Inject constructor(
                     user = InteractedUsers(
                         name = user.name,
                         userName = user.userName,
-                        profilePhoto = user.profilePhoto
+                        profilePhoto = user.profilePhoto,
+                        lastInteracted = System.currentTimeMillis()
                     )
                 )
 
@@ -65,6 +66,10 @@ class UserRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             throw  e
         }
+    }
+
+    override fun getAllUser(): Flow<List<InteractedUsers>> {
+        return interactedUsersDao.getAllUsers()
     }
 
 }

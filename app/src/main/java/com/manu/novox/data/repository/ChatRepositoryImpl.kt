@@ -5,6 +5,8 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.manu.novox.core.utils.getChatId
+import com.manu.novox.core.utils.uploadToCloudinary
+import com.manu.novox.data.local.dao.InteractedUsersDao
 import com.manu.novox.data.local.dao.MessageDao
 import com.manu.novox.data.local.dao.UserDao
 import com.manu.novox.data.local.entity.Message
@@ -24,7 +26,8 @@ class ChatRepositoryImpl @Inject constructor(
     private val database: FirebaseDatabase,
     private val messageDao: MessageDao,
     private val userDao: UserDao,
-    private val externalScope: CoroutineScope
+    private val externalScope: CoroutineScope,
+    private val interactedUsersDao: InteractedUsersDao
 ) : ChatRepository {
 
     private var firebaseJob: Job? = null
@@ -38,7 +41,10 @@ class ChatRepositoryImpl @Inject constructor(
         firebaseJob = externalScope.launch {
             syncMessageFromFirebase(chatId).collect { update ->
                 when (update) {
-                    is FirebaseUpdate.MessageAdded -> messageDao.insertMessage(update.message)
+                    is FirebaseUpdate.MessageAdded -> {
+                        messageDao.insertMessage(update.message)
+                        interactedUsersDao.updateLastInteractionTime(userName, System.currentTimeMillis())
+                    }
                     is FirebaseUpdate.MessageRemoved -> messageDao.deleteMessage(update.messageId)
                 }
             }
@@ -56,22 +62,34 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun addMessageToChat(
         receiverUserName: String,
         text: String?,
-        imageUrl: String?
+        imageUrl: String?,
+        onProgress :(String)-> Unit
     ) {
         val currentUser = userDao.getUserDetails().first()
         val chatId = getChatId(currentUser.userName,receiverUserName)
         val chatRef = database.getReference(MyConstants.DATABASE.MESSAGES).child(chatId)
         val messageId = chatRef.push().key!!
+
+        val cloudinaryUrl = if(imageUrl!=null){
+            uploadToCloudinary(
+                photoUrl = imageUrl,
+                onProgress = onProgress
+            )
+        }else{
+            ""
+        }
         val message = Message(
             messageId = messageId,
             senderUserName = currentUser.userName,
             text = text?:"",
-            image = imageUrl?:"",
+            image = cloudinaryUrl,
             timeStamp = System.currentTimeMillis(),
             chatId = chatId
         )
-        chatRef.child(messageId).setValue(message)
         messageDao.insertMessage(message)
+        chatRef.child(messageId).setValue(message)
+        interactedUsersDao.updateLastInteractionTime(receiverUserName, System.currentTimeMillis())
+
     }
 
     override suspend fun clearChat(receiverUserName: String) {

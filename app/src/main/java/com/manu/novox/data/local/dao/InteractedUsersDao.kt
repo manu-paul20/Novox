@@ -16,6 +16,9 @@ interface InteractedUsersDao {
     @Query("delete from interacted_users where userName=:userName")
     suspend fun deleteUser(userName: String)
 
-    @Query("select * from interacted_users")
+    @Query("select * from interacted_users order by lastInteracted desc")
     fun getAllUsers(): Flow<List<InteractedUsers>>
+
+    @Query("update interacted_users set lastInteracted=:time where userName=:userName")
+    suspend fun updateLastInteractionTime(userName: String,time: Long)
 }

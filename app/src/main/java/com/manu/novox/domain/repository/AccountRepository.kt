@@ -16,7 +16,7 @@ interface AccountRepository {
 
     suspend fun changeProfilePhoto(
         newProfilePhoto: String,
-    ): String
+    )
 
     suspend fun deleteAccount()
 }

@@ -2,10 +2,12 @@ package com.manu.novox.di
 
 import com.manu.novox.data.repository.AuthRepositoryImpl
 import com.manu.novox.data.repository.ChatRepositoryImpl
-import com.manu.novox.data.repository.UserRepositoryImpl
+import com.manu.novox.data.repository.SettingsRepositoryImpl
+import com.manu.novox.data.repository.InteractedUserRepositoryImpl
 import com.manu.novox.domain.repository.AuthRepository
 import com.manu.novox.domain.repository.ChatRepository
-import com.manu.novox.domain.repository.UserRepository
+import com.manu.novox.domain.repository.SettingsRepository
+import com.manu.novox.domain.repository.InteractedUserRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -31,7 +33,13 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun provideInteractedUserRepository(
-        userRepositoryImpl: UserRepositoryImpl
-    ): UserRepository
+        interactedUserRepositoryImpl: InteractedUserRepositoryImpl
+    ): InteractedUserRepository
+
+    @Binds
+    @Singleton
+    abstract fun provideSettingRepository(
+        settingRepositoryImpl: SettingsRepositoryImpl
+    ): SettingsRepository
 
 }

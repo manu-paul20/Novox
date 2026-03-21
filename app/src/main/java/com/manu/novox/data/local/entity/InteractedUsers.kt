@@ -8,4 +8,5 @@ data class InteractedUsers(
     @PrimaryKey val userName: String,
     val name: String,
     val profilePhoto: String,
+    val lastInteracted: Long
 )
