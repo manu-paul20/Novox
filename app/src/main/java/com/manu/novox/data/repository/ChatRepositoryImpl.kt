@@ -58,10 +58,26 @@ class ChatRepositoryImpl @Inject constructor(
         text: String?,
         imageUrl: String?
     ) {
-
+        val currentUser = userDao.getUserDetails().first()
+        val chatId = getChatId(currentUser.userName,receiverUserName)
+        val chatRef = database.getReference(MyConstants.DATABASE.MESSAGES).child(chatId)
+        val messageId = chatRef.push().key!!
+        val message = Message(
+            messageId = messageId,
+            senderUserName = currentUser.userName,
+            text = text?:"",
+            image = imageUrl?:"",
+            timeStamp = System.currentTimeMillis(),
+            chatId = chatId
+        )
+        chatRef.child(messageId).setValue(message)
+        messageDao.insertMessage(message)
     }
 
     override suspend fun clearChat(receiverUserName: String) {
+        val currentUser = userDao.getUserDetails().first()
+        val chatId = getChatId(currentUser.userName,receiverUserName)
+        messageDao.deleteAllMessages(chatId) //only deletes local messages
 
     }
 
