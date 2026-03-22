@@ -3,6 +3,7 @@ package com.manu.novox.presentation.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.manu.novox.domain.repository.AuthRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -11,22 +12,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ): ViewModel(){
-    private val _state = MutableStateFlow(AuthState())
+    private val _state = MutableStateFlow(AuthState(isUserLoggedIn = authRepository.isUserLoggedIn()))
     val state = _state.asStateFlow()
 
     private val _authEffect = MutableSharedFlow<AuthEffect>()
     val authEffect = _authEffect.asSharedFlow()
-
-    init {
-        if (authRepository.isUserLoggedIn()) {
-            viewModelScope.launch {
-                _authEffect.emit(AuthEffect.NavigateToHome)
-            }
-        }
-    }
 
     fun onEvent(event: AuthEvent) {
         when (event) {
@@ -63,13 +57,13 @@ class AuthViewModel @Inject constructor(
             }
 
             AuthEvent.SignInWithEmailPass -> {
-
+                if(_state.value.email.isBlank()||_state.value.pass.isBlank()){
+                    emitEffect(AuthEffect.ShowToast("Email and password cannot be empty "))
+                    return
+                }
                 handleAuthTask (
                     task = {
-                    if(_state.value.email.isBlank()||_state.value.pass.isBlank()){
-                        _authEffect.emit(AuthEffect.ShowToast("Email and password cannot be empty "))
-                        return@handleAuthTask
-                    }
+
                     authRepository.signInWithEmail(
                         _state.value.email,
                         _state.value.pass
@@ -78,22 +72,40 @@ class AuthViewModel @Inject constructor(
             }
 
             is AuthEvent.SignInWithGoogle -> {
-                handleAuthTask (task = { authRepository.signInWithGoogle(event.context) })
+                handleAuthTask (
+                    task = {
+                    authRepository.signInWithGoogle(event.context)
+                },
+                    onSuccess = {
+                        if (_state.value.isSignInMode){
+                            _state.update {
+                                it.copy(isLoading = false)
+                            }
+                            _authEffect.emit(AuthEffect.NavigateToHome)
+                        }else{
+                            _state.update {
+                                it.copy(isLoading = false)
+                            }
+                            _authEffect.emit(AuthEffect.NavigateToAccountCreation)
+                        }
+                    }
+                )
             }
 
             AuthEvent.SignUpWithEmailPass -> {
+                if(_state.value.email.isBlank()||_state.value.pass.isBlank()){
+                    emitEffect(AuthEffect.ShowToast("Email and password cannot be empty "))
+                    return
+                }
                 handleAuthTask(
                     task = {
-                        if(_state.value.email.isBlank()||_state.value.pass.isBlank()){
-                            _authEffect.emit(AuthEffect.ShowToast("Email and password cannot be empty "))
-                            return@handleAuthTask
-                        }
                         authRepository.signUpWithEmail(
                             _state.value.email,
                             _state.value.pass
                         )
                     },
                     onSuccess = {
+                        _state.update { it.copy(isLoading = false) }
                         _authEffect.emit(AuthEffect.NavigateToAccountCreation)
                     }
                 )
@@ -155,6 +167,11 @@ class AuthViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+    private fun emitEffect(effect: AuthEffect){
+        viewModelScope.launch {
+            _authEffect.emit(effect)
         }
     }
 }

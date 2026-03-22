@@ -32,11 +32,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.manu.novox.R
@@ -49,6 +49,7 @@ fun AuthScreenContent(
     state: AuthState,
     onEvent:(AuthEvent)-> Unit
 ) {
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -82,14 +83,14 @@ fun AuthScreenContent(
                         unfocusedContainerColor = Color(0XFFE4E2DB)
                     ),
                     shape = RoundedCornerShape(20.dp),
-                    value = "Email",
+                    value = state.email,
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Email,
                             contentDescription = "user email"
                         )
                     },
-                    onValueChange = {},
+                    onValueChange = { onEvent(AuthEvent.SetEmail(it)) },
                 )
                 Spacer(Modifier.height(20.dp))
                 OutlinedTextField(
@@ -99,14 +100,14 @@ fun AuthScreenContent(
                         unfocusedContainerColor = Color(0XFFE4E2DB)
                     ),
                     shape = RoundedCornerShape(20.dp),
-                    value = "Password",
+                    value = state.pass,
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Password,
                             contentDescription = "user email"
                         )
                     },
-                    onValueChange = {},
+                    onValueChange = { onEvent(AuthEvent.SetPassword(it)) },
                 )
                 Spacer(Modifier.height(10.dp))
                 Button(
@@ -115,7 +116,11 @@ fun AuthScreenContent(
                         containerColor = Color(0XFF6D5E50)
                     ),
                     onClick = {
-                        TODO("if its sign in mode then do sign in else sign up")
+                        if (state.isSignInMode) {
+                            onEvent(AuthEvent.SignInWithEmailPass)
+                        } else {
+                            onEvent(AuthEvent.SignUpWithEmailPass)
+                        }
                     }
                 ) {
                     Text(
@@ -123,33 +128,38 @@ fun AuthScreenContent(
                     )
                 }
 
-                //only shows this row when its sign in mode
-                if(state.isSignInMode){
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        TextButton(
-                            onClick = {}
-                        ) {
-                            Text(
-                                text = "Forgot Password ?",
-                                textDecoration = TextDecoration.Underline,
-                                color = Color(0XFF6D5E50)
-                            )
+                        if (state.isSignInMode) {
+                            TextButton(
+                                onClick = {}
+                            ) {
+                                Text(
+                                    text = "Forgot Password ?",
+                                    textDecoration = TextDecoration.Underline,
+                                    color = Color(0XFF6D5E50)
+                                )
+                            }
                         }
 
                         TextButton(
-                            onClick = {}
+                            onClick = {
+                                if (state.isSignInMode) {
+                                    onEvent(AuthEvent.SetModeToSignUp)
+                                } else {
+                                    onEvent(AuthEvent.SetModeToSignIn)
+                                }
+                            }
                         ) {
                             Text(
-                                text = "Sign Up",
+                                text = if (state.isSignInMode) "Sign Up" else "Sign In",
                                 color = Color(0XFF6D5E50)
                             )
                         }
                     }
-                }
 
                 Spacer(Modifier.height(10.dp))
                 Row(
@@ -164,7 +174,7 @@ fun AuthScreenContent(
                     HorizontalDivider(modifier = Modifier.weight(1f))
                 }
                 OutlinedButton(
-                    onClick = {}
+                    onClick = { onEvent(AuthEvent.SignInWithGoogle(context)) }
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -177,7 +187,7 @@ fun AuthScreenContent(
                             contentDescription = "google icon"
                         )
                         Spacer(Modifier.width(10.dp))
-                        Text("Login with Google")
+                        Text("Continue with Google")
                     }
                 }
 
