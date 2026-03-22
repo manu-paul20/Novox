@@ -5,7 +5,5 @@ data class AuthState(
     val pass: String = "",
     val isSignInMode: Boolean = true,
     val isLoading: Boolean = false,
-    val message: String = "",
-    val isBottomSheetOpen: Boolean = false,
-    val isUserNameExist: Boolean = false
+    val message: String = ""
 )

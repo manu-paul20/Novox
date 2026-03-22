@@ -3,8 +3,6 @@ package com.manu.novox.presentation.auth
 import android.content.Context
 
 sealed interface AuthEvent{
-    object OpenChooseUserNameSheet: AuthEvent
-    object CloseChooseUserNameSheet: AuthEvent
 
     object ResetMessageDialog: AuthEvent
 

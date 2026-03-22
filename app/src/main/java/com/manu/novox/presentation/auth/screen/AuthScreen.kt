@@ -13,7 +13,8 @@ import com.manu.novox.presentation.auth.AuthViewModel
 @Composable
 fun AuthScreen(
     authViewModel: AuthViewModel = hiltViewModel(),
-    onNavigateToHome: () -> Unit
+    onNavigateToHome: () -> Unit,
+    onNavigateToAccountCreation: () -> Unit
 ) {
 
     val state = authViewModel.state.collectAsStateWithLifecycle()
@@ -28,6 +29,10 @@ fun AuthScreen(
 
                 is AuthEffect.ShowToast -> {
                     Toast.makeText(context,effect.message, Toast.LENGTH_LONG).show()
+                }
+
+                AuthEffect.NavigateToAccountCreation -> {
+                    onNavigateToAccountCreation()
                 }
             }
         }

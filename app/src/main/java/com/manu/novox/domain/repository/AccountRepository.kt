@@ -23,5 +23,4 @@ interface AccountRepository {
 
     suspend fun signOut()
 
-
 }

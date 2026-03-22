@@ -69,7 +69,7 @@ fun AuthScreenContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Sign In",
+                    text = if(state.isSignInMode) "Sign In" else "Sign Up",
                     fontSize = 40.sp,
                     fontFamily = FontFamily.Default,
                     fontWeight = FontWeight.ExtraBold
@@ -114,32 +114,40 @@ fun AuthScreenContent(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0XFF6D5E50)
                     ),
-                    onClick = {}
-                ) {
-                    Text("Login")
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    TextButton(
-                        onClick = {}
-                    ) {
-                        Text(
-                            text = "Forgot Password ?",
-                            textDecoration = TextDecoration.Underline,
-                            color = Color(0XFF6D5E50)
-                        )
+                    onClick = {
+                        TODO("if its sign in mode then do sign in else sign up")
                     }
+                ) {
+                    Text(
+                        text = if(state.isSignInMode) "Sign In" else "Sign Up"
+                    )
+                }
 
-                    TextButton(
-                        onClick = {}
+                //only shows this row when its sign in mode
+                if(state.isSignInMode){
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(
-                            text = "Sign Up",
-                            color = Color(0XFF6D5E50)
-                        )
+                        TextButton(
+                            onClick = {}
+                        ) {
+                            Text(
+                                text = "Forgot Password ?",
+                                textDecoration = TextDecoration.Underline,
+                                color = Color(0XFF6D5E50)
+                            )
+                        }
+
+                        TextButton(
+                            onClick = {}
+                        ) {
+                            Text(
+                                text = "Sign Up",
+                                color = Color(0XFF6D5E50)
+                            )
+                        }
                     }
                 }
 

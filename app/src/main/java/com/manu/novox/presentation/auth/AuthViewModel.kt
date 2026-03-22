@@ -30,22 +30,6 @@ class AuthViewModel @Inject constructor(
 
     fun onEvent(event: AuthEvent) {
         when (event) {
-            AuthEvent.OpenChooseUserNameSheet -> {
-                _state.update {
-                    it.copy(
-                        isBottomSheetOpen = true
-                    )
-                }
-            }
-
-            AuthEvent.CloseChooseUserNameSheet -> {
-                _state.update {
-                    it.copy(
-                        isBottomSheetOpen = false
-                    )
-                }
-            }
-
             is AuthEvent.SetEmail -> {
                 _state.update {
                     it.copy(
@@ -80,7 +64,8 @@ class AuthViewModel @Inject constructor(
 
             AuthEvent.SignInWithEmailPass -> {
 
-                handleAuthTask {
+                handleAuthTask (
+                    task = {
                     if(_state.value.email.isBlank()||_state.value.pass.isBlank()){
                         _authEffect.emit(AuthEffect.ShowToast("Email and password cannot be empty "))
                         return@handleAuthTask
@@ -89,24 +74,29 @@ class AuthViewModel @Inject constructor(
                         _state.value.email,
                         _state.value.pass
                     )
-                }
+                })
             }
 
             is AuthEvent.SignInWithGoogle -> {
-                handleAuthTask { authRepository.signInWithGoogle(event.context) }
+                handleAuthTask (task = { authRepository.signInWithGoogle(event.context) })
             }
 
             AuthEvent.SignUpWithEmailPass -> {
-                handleAuthTask {
-                    if(_state.value.email.isBlank()||_state.value.pass.isBlank()){
-                        _authEffect.emit(AuthEffect.ShowToast("Email and password cannot be empty "))
-                        return@handleAuthTask
+                handleAuthTask(
+                    task = {
+                        if(_state.value.email.isBlank()||_state.value.pass.isBlank()){
+                            _authEffect.emit(AuthEffect.ShowToast("Email and password cannot be empty "))
+                            return@handleAuthTask
+                        }
+                        authRepository.signUpWithEmail(
+                            _state.value.email,
+                            _state.value.pass
+                        )
+                    },
+                    onSuccess = {
+                        _authEffect.emit(AuthEffect.NavigateToAccountCreation)
                     }
-                    authRepository.signUpWithEmail(
-                        _state.value.email,
-                        _state.value.pass
-                    )
-                }
+                )
             }
 
             AuthEvent.ResetMessageDialog -> {
@@ -122,32 +112,25 @@ class AuthViewModel @Inject constructor(
                 ) {
                     return
                 }
-                viewModelScope.launch {
-                    _state.update { it.copy(isLoading = true) }
-                    try {
+                handleAuthTask(
+                    task = {
                         authRepository.resetPassword(_state.value.email)
-                        _state.update {
-                            it.copy(
-                                isLoading = false,
-                                message = "Password reset email sent to ${_state.value.email}"
-                            )
-                        }
-                    }catch (e: Exception){
-                       _state.update {
-                           it.copy(
-                               isLoading = false,
-                               message = e.localizedMessage?:"Unknown Error"
-                           )
-                       }
+                    },
+                    onSuccess = {
+                        _state.update { it.copy(
+                            isLoading = false,
+                            message = "Password reset email sent to ${_state.value.email}"
+                        ) }
                     }
-                }
+                )
             }
         }
 
     }
 
     private fun handleAuthTask(
-        task: suspend () -> Unit
+        task: suspend () -> Unit,
+        onSuccess:(suspend ()-> Unit)? = null
     ) {
         if (_state.value.isLoading) {
             return
@@ -158,8 +141,12 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 task()
-                _state.update { it.copy(isLoading = false) }
-                _authEffect.emit(AuthEffect.NavigateToHome)
+               if(onSuccess==null){
+                   _state.update { it.copy(isLoading = false) }
+                   _authEffect.emit(AuthEffect.NavigateToHome)
+               }else{
+                   onSuccess()
+               }
             } catch (e: Exception) {
                 _state.update {
                     it.copy(
