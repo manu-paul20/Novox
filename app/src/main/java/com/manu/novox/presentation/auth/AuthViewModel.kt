@@ -79,10 +79,12 @@ class AuthViewModel @Inject constructor(
             }
 
             AuthEvent.SignInWithEmailPass -> {
-                if(_state.value.email.isBlank()||_state.value.pass.isBlank()){
-                    return
-                }
+
                 handleAuthTask {
+                    if(_state.value.email.isBlank()||_state.value.pass.isBlank()){
+                        _authEffect.emit(AuthEffect.ShowToast("Email and password cannot be empty "))
+                        return@handleAuthTask
+                    }
                     authRepository.signInWithEmail(
                         _state.value.email,
                         _state.value.pass
@@ -95,10 +97,11 @@ class AuthViewModel @Inject constructor(
             }
 
             AuthEvent.SignUpWithEmailPass -> {
-                if(_state.value.email.isBlank()||_state.value.pass.isBlank()){
-                    return
-                }
                 handleAuthTask {
+                    if(_state.value.email.isBlank()||_state.value.pass.isBlank()){
+                        _authEffect.emit(AuthEffect.ShowToast("Email and password cannot be empty "))
+                        return@handleAuthTask
+                    }
                     authRepository.signUpWithEmail(
                         _state.value.email,
                         _state.value.pass

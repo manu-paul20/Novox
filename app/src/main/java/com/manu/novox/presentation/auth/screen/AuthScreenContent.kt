@@ -40,13 +40,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.manu.novox.R
+import com.manu.novox.presentation.auth.AuthEvent
+import com.manu.novox.presentation.auth.AuthState
 
 @Composable
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
-fun AuthScreenContent() {
+
+fun AuthScreenContent(
+    state: AuthState,
+    onEvent:(AuthEvent)-> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
