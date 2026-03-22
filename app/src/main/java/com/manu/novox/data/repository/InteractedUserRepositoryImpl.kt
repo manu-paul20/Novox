@@ -21,19 +21,17 @@ class InteractedUserRepositoryImpl @Inject constructor(
     override suspend fun addNewUserToChatList(user: User) {
         //here we need to do only one thing
         //1. Add the new user to interacted user list
-        try {
-                interactedUsersDao.addUser(
-                    user = InteractedUsers(
+
+        interactedUsersDao.addUser(
+            user = InteractedUsers(
                         name = user.name,
                         userName = user.userName,
                         profilePhoto = user.profilePhoto,
                         lastInteracted = System.currentTimeMillis()
-                    )
-                )
+            )
+        )
 
-        } catch (e: Exception) {
-            throw  e
-        }
+
     }
 
     override suspend fun deleteUserFromChatList(userName: String) {
@@ -42,19 +40,15 @@ class InteractedUserRepositoryImpl @Inject constructor(
         1. Delete the user from interacted user list
         2. Delete the user from firebase
          */
-        try {
            val currentUser = userDao.getUserDetails().first()
             val chatId = getChatId(currentUser.userName,userName)
             val chatRef = database.getReference(MyConstants.DATABASE.MESSAGES)
             chatRef.child(chatId).removeValue().await() // deleted from firebase
             interactedUsersDao.deleteUser(userName) //deleted from local db
-        }catch (e: Exception){
-            throw e
-        }
+
     }
 
     override suspend fun searchUser(userName: String): User {
-        try {
             val userRef = database.getReference(MyConstants.DATABASE.USERS)
             val userDataSnapshot = userRef.child(userName).get().await()
             if (userDataSnapshot.exists()){
@@ -63,13 +57,36 @@ class InteractedUserRepositoryImpl @Inject constructor(
             }else{
                 throw Exception("user don't exist")
             }
-        } catch (e: Exception) {
-            throw  e
-        }
     }
 
     override fun getAllUser(): Flow<List<InteractedUsers>> {
         return interactedUsersDao.getAllUsers()
+    }
+
+    override suspend fun updateInteractedUserDetails(userName: String,lastInteracted: Long): InteractedUsers? {
+        val user = database
+            .getReference(MyConstants.DATABASE.USERS)
+            .child(userName)
+            .get()
+            .await()
+            .getValue(User::class.java)
+
+        if(user!=null){
+            interactedUsersDao.updateInteractedUserDetails(
+                userName = user.userName,
+                name = user.name,
+                profilePhoto = user.profilePhoto
+            )
+        }
+        return user?.run {
+            InteractedUsers(
+                userName = userName,
+                name = name,
+                profilePhoto = profilePhoto,
+                lastInteracted = lastInteracted
+            )
+        }
+
     }
 
 }

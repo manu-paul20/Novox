@@ -18,5 +18,10 @@ interface AccountRepository {
         newProfilePhoto: String,
     )
 
+
     suspend fun deleteAccount()
+
+    suspend fun signOut()
+
+
 }

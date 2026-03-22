@@ -3,6 +3,9 @@ package com.manu.novox.presentation.auth
 data class AuthState(
     val email: String = "",
     val pass: String = "",
-    val authMode: AuthMode = AuthMode.SignIn,
-    val isLoading: Boolean = false
+    val isSignInMode: Boolean = true,
+    val isLoading: Boolean = false,
+    val message: String = "",
+    val isBottomSheetOpen: Boolean = false,
+    val isUserNameExist: Boolean = false
 )

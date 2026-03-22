@@ -9,7 +9,6 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.manu.novox.domain.model.SignInResult
 import com.manu.novox.domain.repository.AuthRepository
 import com.manu.novox.others.MyConstants
 import kotlinx.coroutines.tasks.await
@@ -19,8 +18,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val credentialManager: CredentialManager,
     private val auth: FirebaseAuth
 ) : AuthRepository {
-    override suspend fun signInWithGoogle(context: Context): SignInResult {
-        return try {
+    override suspend fun signInWithGoogle(context: Context) {
             val googleIdOption = GetGoogleIdOption.Builder()
                 .setServerClientId(MyConstants.FIREBASE.WEB_CLIENT_ID)
                 .setFilterByAuthorizedAccounts(false)
@@ -39,78 +37,34 @@ class AuthRepositoryImpl @Inject constructor(
                     GoogleIdTokenCredential.createFrom(result.credential.data)
                 signInWithFirebase(googleIdTokenCredential.idToken)
             } else {
-                SignInResult(
-                    isSignInSuccessful = false,
-                    errorMessage = "Something went wrong"
-                )
+                throw Exception("Invalid credential type")
             }
-        } catch (e: Exception) {
-            SignInResult(
-                isSignInSuccessful = false,
-                errorMessage = e.localizedMessage
-            )
-        }
     }
 
-    override suspend fun signInWithEmail(email: String, password: String): SignInResult {
-        return try {
+    override suspend fun signInWithEmail(email: String, password: String) {
             auth.signInWithEmailAndPassword(email,password).await()
 
-            SignInResult(
-                isSignInSuccessful = true,
-                errorMessage = null
-            )
-        }catch (e: Exception){
-            SignInResult(
-                isSignInSuccessful = false,
-                errorMessage = e.localizedMessage
-            )
-        }
     }
 
-    override suspend fun signUpWithEmail(email: String, password: String): SignInResult {
-        return try {
+    override suspend fun signUpWithEmail(email: String, password: String) {
             auth.createUserWithEmailAndPassword(email,password).await()
-
-            SignInResult(
-                isSignInSuccessful = true,
-                errorMessage = null
-            )
-        }catch (e: Exception){
-            SignInResult(
-                isSignInSuccessful = false,
-                errorMessage = e.localizedMessage
-            )
-        }
     }
 
-    override suspend fun signOut() {
-            auth.signOut()
-            credentialManager.clearCredentialState(ClearCredentialStateRequest())
+
+    suspend fun signInWithFirebase(idToken: String) {
+
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential).await()
+
     }
 
-    suspend fun signInWithFirebase(idToken: String): SignInResult {
-        return try {
-            val credential = GoogleAuthProvider.getCredential(idToken, null)
-            val result = auth.signInWithCredential(credential).await()
-            val user = result.user
+    override suspend fun resetPassword(email: String) {
+        auth.sendPasswordResetEmail(email).await()
+    }
 
-            return user?.run {
-                SignInResult(
-                    isSignInSuccessful = true,
-                    errorMessage = null
-                )
-            }
-                ?: SignInResult(
-                    isSignInSuccessful = false,
-                    errorMessage = "Something went wrong"
-                )
-        } catch (e: Exception) {
-            SignInResult(
-                isSignInSuccessful = false,
-                errorMessage = e.localizedMessage
-            )
-        }
+
+    override fun isUserLoggedIn(): Boolean {
+        return (auth.currentUser!=null)
     }
 
 }

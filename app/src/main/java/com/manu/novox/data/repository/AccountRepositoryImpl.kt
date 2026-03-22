@@ -1,6 +1,8 @@
 package com.manu.novox.data.repository
 
 import androidx.core.net.toUri
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
 import com.cloudinary.Cloudinary
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
@@ -25,11 +27,11 @@ import kotlin.coroutines.resumeWithException
 class AccountRepositoryImpl @Inject constructor(
     private val firebaseDB: FirebaseDatabase,
     private val auth: FirebaseAuth,
-    private val userDao: UserDao
+    private val userDao: UserDao,
+    private val credentialManager: CredentialManager
 ) : AccountRepository{
 
     override suspend fun createAccount(name: String, userName: String) {
-        try {
             val userRef = firebaseDB.getReference(MyConstants.DATABASE.USERS)
             val isUserExist = userRef.child(userName).get().await().exists()
             if(isUserExist){
@@ -45,9 +47,6 @@ class AccountRepositoryImpl @Inject constructor(
                     userDao.addUser(user)
 
             }
-        } catch (e: Exception) {
-            throw Exception("Account creation failed:${e.localizedMessage}")
-        }
     }
 
     override suspend fun updateAccountDetails(
@@ -68,7 +67,7 @@ class AccountRepositoryImpl @Inject constructor(
         deleteProfilePhoto()
         val currentUser = userDao.getUserDetails().first()
         val userRef = firebaseDB.getReference(MyConstants.DATABASE.USERS)
-        userRef.child(currentUser.userName).removeValue()
+        userRef.child(currentUser.userName).removeValue().await()
         userDao.deleteUser(currentUser)
     }
 
@@ -98,6 +97,13 @@ class AccountRepositoryImpl @Inject constructor(
     override suspend fun getAccountDetails(): User {
         val currentUser = userDao.getUserDetails().first()
         return currentUser
+    }
+
+
+
+    override suspend fun signOut() {
+        auth.signOut()
+        credentialManager.clearCredentialState(ClearCredentialStateRequest())
     }
 
 }

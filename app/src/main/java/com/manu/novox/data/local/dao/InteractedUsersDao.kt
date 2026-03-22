@@ -21,4 +21,7 @@ interface InteractedUsersDao {
 
     @Query("update interacted_users set lastInteracted=:time where userName=:userName")
     suspend fun updateLastInteractionTime(userName: String,time: Long)
+
+    @Query("update interacted_users set name=:name , profilePhoto=:profilePhoto where userName=:userName")
+    suspend fun updateInteractedUserDetails(userName: String, name: String, profilePhoto: String)
 }

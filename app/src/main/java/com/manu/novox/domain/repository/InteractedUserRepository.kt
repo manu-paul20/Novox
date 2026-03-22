@@ -18,4 +18,6 @@ interface InteractedUserRepository {
 
     suspend fun searchUser(userName: String): User
 
+    suspend fun updateInteractedUserDetails(userName: String,lastInteracted: Long): InteractedUsers?
+
 }
