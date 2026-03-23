@@ -1,5 +1,7 @@
 package com.manu.novox.core.navigation
 
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -40,6 +42,8 @@ fun NavigationRoot() {
         }
     ) { innerPadding ->
         NavHost(
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
             navController = navController,
             startDestination = Routes.AuthScreen
         ) {
