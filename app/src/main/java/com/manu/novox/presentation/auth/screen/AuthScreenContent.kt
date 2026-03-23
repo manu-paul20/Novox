@@ -84,6 +84,7 @@ fun AuthScreenContent(
                     ),
                     shape = RoundedCornerShape(20.dp),
                     value = state.email,
+                    label = {Text("Email")},
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Email,
@@ -101,6 +102,7 @@ fun AuthScreenContent(
                     ),
                     shape = RoundedCornerShape(20.dp),
                     value = state.pass,
+                    label = {Text("Password")},
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Password,

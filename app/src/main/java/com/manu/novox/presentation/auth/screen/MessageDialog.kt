@@ -35,7 +35,7 @@ fun MessageDialog(
         contentAlignment = Alignment.Center
     ) {
         Dialog(
-            onDismissRequest = {}
+            onDismissRequest = onClose
         ) {
             Column(
                 modifier = Modifier
@@ -66,7 +66,7 @@ fun MessageDialog(
                     textAlign = TextAlign.Center
                 )
                 TextButton(
-                    onClick = {}
+                    onClick = onClose
                 ) {
                     Text("OK")
                 }
