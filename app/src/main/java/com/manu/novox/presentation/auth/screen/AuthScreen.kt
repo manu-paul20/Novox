@@ -18,7 +18,7 @@ import com.manu.novox.presentation.auth.AuthViewModel
 @Composable
 fun AuthScreen(
     authViewModel: AuthViewModel = hiltViewModel(),
-    onNavigateToHome: () -> Unit,
+    onNavigateToChatList: () -> Unit,
     onNavigateToAccountCreation: () -> Unit
 ) {
 
@@ -28,14 +28,14 @@ fun AuthScreen(
 
     LaunchedEffect(Unit) {
         if (state.value.isUserLoggedIn){
-            onNavigateToHome()
+            onNavigateToChatList()
         }
     }
     LaunchedEffect(true) {
         authViewModel.authEffect.collect { effect->
             when (effect){
                 AuthEffect.NavigateToHome->{
-                    onNavigateToHome()
+                    onNavigateToChatList()
                 }
 
                 is AuthEffect.ShowToast -> {

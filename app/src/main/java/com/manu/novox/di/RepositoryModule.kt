@@ -1,9 +1,11 @@
 package com.manu.novox.di
 
+import com.manu.novox.data.repository.AccountRepositoryImpl
 import com.manu.novox.data.repository.AuthRepositoryImpl
 import com.manu.novox.data.repository.ChatRepositoryImpl
 import com.manu.novox.data.repository.SettingsRepositoryImpl
 import com.manu.novox.data.repository.InteractedUserRepositoryImpl
+import com.manu.novox.domain.repository.AccountRepository
 import com.manu.novox.domain.repository.AuthRepository
 import com.manu.novox.domain.repository.ChatRepository
 import com.manu.novox.domain.repository.SettingsRepository
@@ -23,6 +25,12 @@ abstract class RepositoryModule {
     abstract fun provideAuthRepository(
         authRepositoryImpl: AuthRepositoryImpl
     ): AuthRepository
+
+    @Binds
+    @Singleton
+    abstract fun provideAccountRepository(
+        accountRepositoryImpl: AccountRepositoryImpl
+    ): AccountRepository
 
     @Binds
     @Singleton
