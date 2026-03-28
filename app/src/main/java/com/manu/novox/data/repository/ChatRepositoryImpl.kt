@@ -43,7 +43,11 @@ class ChatRepositoryImpl @Inject constructor(
                 when (update) {
                     is FirebaseUpdate.MessageAdded -> {
                         messageDao.insertMessage(update.message)
-                        interactedUsersDao.updateLastInteractionTime(userName, System.currentTimeMillis())
+                        interactedUsersDao.updateLastInteractionDetails(
+                            userName,
+                            System.currentTimeMillis(),
+                            update.message.text
+                        )
                     }
                     is FirebaseUpdate.MessageRemoved -> messageDao.deleteMessage(update.messageId)
                 }
@@ -69,6 +73,16 @@ class ChatRepositoryImpl @Inject constructor(
         val chatId = getChatId(currentUser.userName,receiverUserName)
         val chatRef = database.getReference(MyConstants.DATABASE.MESSAGES).child(chatId)
         val messageId = chatRef.push().key!!
+        //first add the image to chat
+        var message = Message(
+            messageId = messageId,
+            senderUserName = currentUser.userName,
+            text = text?:"",
+            image = imageUrl?:"",
+            timeStamp = System.currentTimeMillis(),
+            chatId = chatId
+        )
+        messageDao.insertMessage(message)
 
         val cloudinaryUrl = if(imageUrl!=null){
             uploadToCloudinary(
@@ -78,17 +92,15 @@ class ChatRepositoryImpl @Inject constructor(
         }else{
             ""
         }
-        val message = Message(
-            messageId = messageId,
-            senderUserName = currentUser.userName,
-            text = text?:"",
-            image = cloudinaryUrl,
-            timeStamp = System.currentTimeMillis(),
-            chatId = chatId
-        )
+
+        message = message.copy(image = cloudinaryUrl)
         messageDao.insertMessage(message)
         chatRef.child(messageId).setValue(message)
-        interactedUsersDao.updateLastInteractionTime(receiverUserName, System.currentTimeMillis())
+        interactedUsersDao.updateLastInteractionDetails(
+            receiverUserName,
+            System.currentTimeMillis(),
+            message.text
+        )
 
     }
 
@@ -120,7 +132,9 @@ class ChatRepositoryImpl @Inject constructor(
 
             override fun onChildRemoved(p0: DataSnapshot) {
                 p0.getValue(Message::class.java)?.let {
-                    trySend(FirebaseUpdate.MessageRemoved(it.messageId))
+                    trySend(FirebaseUpdate.MessageRemoved(
+                        it.messageId
+                    ))
                 }
 
             }

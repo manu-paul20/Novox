@@ -27,7 +27,8 @@ class InteractedUserRepositoryImpl @Inject constructor(
                         name = user.name,
                         userName = user.userName,
                         profilePhoto = user.profilePhoto,
-                        lastInteracted = System.currentTimeMillis()
+                lastInteracted = System.currentTimeMillis(),
+                lastMessage = ""
             )
         )
 
@@ -63,7 +64,12 @@ class InteractedUserRepositoryImpl @Inject constructor(
         return interactedUsersDao.getAllUsers()
     }
 
-    override suspend fun updateInteractedUserDetails(userName: String,lastInteracted: Long): InteractedUsers? {
+    //call these method when someone want to saw a profile
+    override suspend fun updateInteractedUserDetails(
+        userName: String,
+        lastInteracted: Long,
+        lastMessage: String
+    ): InteractedUsers? {
         val user = database
             .getReference(MyConstants.DATABASE.USERS)
             .child(userName)
@@ -83,7 +89,8 @@ class InteractedUserRepositoryImpl @Inject constructor(
                 userName = userName,
                 name = name,
                 profilePhoto = profilePhoto,
-                lastInteracted = lastInteracted
+                lastInteracted = lastInteracted,
+                lastMessage = lastMessage
             )
         }
 

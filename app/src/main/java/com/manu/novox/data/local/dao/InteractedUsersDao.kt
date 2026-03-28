@@ -19,8 +19,12 @@ interface InteractedUsersDao {
     @Query("select * from interacted_users order by lastInteracted desc")
     fun getAllUsers(): Flow<List<InteractedUsers>>
 
-    @Query("update interacted_users set lastInteracted=:time where userName=:userName")
-    suspend fun updateLastInteractionTime(userName: String,time: Long)
+    @Query("update interacted_users set lastInteracted=:lastInteractionTime, lastMessage = :lastMessage where userName=:userName")
+    suspend fun updateLastInteractionDetails(
+        userName: String,
+        lastInteractionTime: Long,
+        lastMessage: String
+    )
 
     @Query("update interacted_users set name=:name , profilePhoto=:profilePhoto where userName=:userName")
     suspend fun updateInteractedUserDetails(userName: String, name: String, profilePhoto: String)
