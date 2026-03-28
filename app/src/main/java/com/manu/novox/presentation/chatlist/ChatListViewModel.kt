@@ -1,0 +1,135 @@
+package com.manu.novox.presentation.chatlist
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.manu.novox.domain.repository.AccountRepository
+import com.manu.novox.domain.repository.InteractedUserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class ChatListViewModel @Inject constructor(
+    private val interactedUserRepo: InteractedUserRepository,
+    private val accountRepository: AccountRepository
+) : ViewModel() {
+    init {
+        viewModelScope.launch {
+            if (accountRepository.getAccountDetails().userName.isBlank()){
+                emitEffect(ChatListEffects.NavigateToAccountCreation)
+            }
+        }
+    }
+    private val _state = MutableStateFlow(ChatListState())
+    private val interactedUsers = interactedUserRepo.getAllUser()
+
+    private val _effect = MutableSharedFlow<ChatListEffects>()
+    val effect = _effect.asSharedFlow()
+
+    val state = combine(_state, interactedUsers) { state, users ->
+        val userList = users.filter {
+            it.name.contains(state.searchQuery.replace(" ", ""), ignoreCase = true)
+        }
+        state.copy(interactedUser = userList)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatListState())
+
+    fun onEvent(event: ChatListEvents) {
+        when (event) {
+            ChatListEvents.CloseLocalSearchBox -> {
+                _state.update {
+                    it.copy(
+                        isLocalSearchEnabled = false,
+                        searchQuery = ""
+                    )
+                }
+            }
+
+            ChatListEvents.CloseNewUserSheet -> {
+                _state.update {
+                    it.copy(
+                        isBottomSheetOpen = false,
+                        newUserName = ""
+                    )
+                }
+            }
+
+            is ChatListEvents.OnNewUserNameChange -> {
+                _state.update { it.copy(newUserName = event.query) }
+            }
+
+            is ChatListEvents.OnSearchQueryChange -> {
+                _state.update { it.copy(searchQuery = event.query) }
+            }
+
+            ChatListEvents.OpenLocalSearchBox -> {
+                _state.update { it.copy(isLocalSearchEnabled = true) }
+            }
+
+            ChatListEvents.OpenNewUserSheet -> {
+                _state.update { it.copy(isBottomSheetOpen = true) }
+            }
+
+            is ChatListEvents.SearchNewUser -> {
+                viewModelScope.launch {
+                    _state.update {
+                        it.copy(
+                            isSearchingNewUser = true,
+                            searchingError = ""
+                        )
+                    }
+                    try {
+                        val user = interactedUserRepo.searchUser(event.userName)
+                        _state.update {
+                            it.copy(
+                                searchingError = "",
+                                searchResult = user,
+                                isSearchingNewUser = false
+                            )
+                        }
+                    } catch (e: Exception) {
+                        _state.update {
+                            it.copy(
+                                searchingError = e.localizedMessage ?: "Something went wrong",
+                                isLoading = false
+                            )
+                        }
+                    }
+                }
+            }
+
+            is ChatListEvents.AddUser -> {
+                _state.update { it.copy(isLoading = true) }
+                viewModelScope.launch {
+                    try {
+                        interactedUserRepo.addNewUserToChatList(event.user)
+                        _state.update {
+                            it.copy(
+                                isLoading = false
+                            )
+                        }
+                    } catch (e: Exception) {
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                error = e.localizedMessage ?: "Something went wrong"
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun emitEffect(effect: ChatListEffects) {
+        viewModelScope.launch {
+            _effect.emit(effect)
+        }
+    }
+}
