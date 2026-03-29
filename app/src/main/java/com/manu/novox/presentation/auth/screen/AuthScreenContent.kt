@@ -77,6 +77,7 @@ fun AuthScreenContent(
                 )
                 Spacer(Modifier.height(40.dp))
                 OutlinedTextField(
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = Color(0XFFE4E2DB),
@@ -95,6 +96,7 @@ fun AuthScreenContent(
                 )
                 Spacer(Modifier.height(20.dp))
                 OutlinedTextField(
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = Color(0XFFE4E2DB),

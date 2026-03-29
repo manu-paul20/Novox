@@ -2,8 +2,11 @@ package com.manu.novox.presentation.chatlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.manu.novox.core.utils.toFontFamily
+import com.manu.novox.core.utils.toFontStyle
 import com.manu.novox.domain.repository.AccountRepository
 import com.manu.novox.domain.repository.InteractedUserRepository
+import com.manu.novox.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatListViewModel @Inject constructor(
     private val interactedUserRepo: InteractedUserRepository,
-    private val accountRepository: AccountRepository
+    private val accountRepository: AccountRepository,
+    settingsRepository: SettingsRepository
 ) : ViewModel() {
     init {
         viewModelScope.launch {
@@ -29,15 +33,22 @@ class ChatListViewModel @Inject constructor(
     }
     private val _state = MutableStateFlow(ChatListState())
     private val interactedUsers = interactedUserRepo.getAllUser()
+    private val _settings = settingsRepository.getUserSettings()
+
 
     private val _effect = MutableSharedFlow<ChatListEffects>()
     val effect = _effect.asSharedFlow()
 
-    val state = combine(_state, interactedUsers) { state, users ->
+    val state = combine(_state, interactedUsers, _settings) { state, users, settings ->
         val userList = users.filter {
             it.name.contains(state.searchQuery.replace(" ", ""), ignoreCase = true)
         }
-        state.copy(interactedUser = userList)
+        state.copy(
+            interactedUser = userList,
+            fontSize = settings.appFontSize,
+            fontFamily = settings.fontFamily.toFontFamily(),
+            fontStyle = settings.fontStyle.toFontStyle()
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatListState())
 
     fun onEvent(event: ChatListEvents) {
@@ -77,6 +88,9 @@ class ChatListViewModel @Inject constructor(
             }
 
             is ChatListEvents.SearchNewUser -> {
+                if (_state.value.newUserName.isBlank()) {
+                    return
+                }
                 viewModelScope.launch {
                     _state.update {
                         it.copy(
@@ -85,7 +99,7 @@ class ChatListViewModel @Inject constructor(
                         )
                     }
                     try {
-                        val user = interactedUserRepo.searchUser(event.userName)
+                        val user = interactedUserRepo.searchUser(_state.value.newUserName)
                         _state.update {
                             it.copy(
                                 searchingError = "",
@@ -104,20 +118,22 @@ class ChatListViewModel @Inject constructor(
                 }
             }
 
-            is ChatListEvents.AddUser -> {
+            ChatListEvents.AddUser -> {
                 _state.update { it.copy(isLoading = true) }
                 viewModelScope.launch {
                     try {
-                        interactedUserRepo.addNewUserToChatList(event.user)
+                        interactedUserRepo.addNewUserToChatList(_state.value.searchResult!!)
                         _state.update {
                             it.copy(
-                                isLoading = false
+                                isLoading = false,
+                                isBottomSheetOpen = false
                             )
                         }
                     } catch (e: Exception) {
                         _state.update {
                             it.copy(
                                 isLoading = false,
+                                isBottomSheetOpen = false,
                                 error = e.localizedMessage ?: "Something went wrong"
                             )
                         }

@@ -15,8 +15,8 @@ sealed interface ChatListEvents{
 
     object CloseNewUserSheet: ChatListEvents
 
-    data class SearchNewUser(val userName: String): ChatListEvents
+    object SearchNewUser: ChatListEvents
 
-    data class AddUser(val user: User): ChatListEvents
+    object AddUser: ChatListEvents
 
 }

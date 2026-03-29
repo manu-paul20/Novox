@@ -65,6 +65,7 @@ fun AccountCreationScreenContent(
                 Spacer(Modifier.height(20.dp))
                 HorizontalDivider()
                 OutlinedTextField(
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color.Transparent,
@@ -81,6 +82,7 @@ fun AccountCreationScreenContent(
                 )
                 Spacer(Modifier.height(20.dp))
                 OutlinedTextField(
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = Color(0XFFE4E2DB),
