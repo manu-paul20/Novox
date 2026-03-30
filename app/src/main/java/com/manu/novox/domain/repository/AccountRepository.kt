@@ -12,7 +12,7 @@ interface AccountRepository {
         profilePicture: String
     )
 
-   suspend fun getAccountDetails(): User
+   suspend fun getAccountDetails(): User?
 
     suspend fun changeProfilePhoto(
         newProfilePhoto: String,

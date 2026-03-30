@@ -77,17 +77,11 @@ class AuthViewModel @Inject constructor(
                     authRepository.signInWithGoogle(event.context)
                 },
                     onSuccess = {
-                        if (_state.value.isSignInMode){
                             _state.update {
                                 it.copy(isLoading = false)
                             }
                             _authEffect.emit(AuthEffect.NavigateToHome)
-                        }else{
-                            _state.update {
-                                it.copy(isLoading = false)
-                            }
-                            _authEffect.emit(AuthEffect.NavigateToAccountCreation)
-                        }
+
                     }
                 )
             }

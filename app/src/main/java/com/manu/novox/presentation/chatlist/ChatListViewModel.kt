@@ -1,5 +1,6 @@
 package com.manu.novox.presentation.chatlist
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.manu.novox.core.utils.toFontFamily
@@ -26,7 +27,8 @@ class ChatListViewModel @Inject constructor(
 ) : ViewModel() {
     init {
         viewModelScope.launch {
-            if (accountRepository.getAccountDetails().userName.isBlank()){
+            val currentUser = accountRepository.getAccountDetails()
+            if (currentUser == null) {
                 emitEffect(ChatListEffects.NavigateToAccountCreation)
             }
         }
@@ -111,7 +113,7 @@ class ChatListViewModel @Inject constructor(
                         _state.update {
                             it.copy(
                                 searchingError = e.localizedMessage ?: "Something went wrong",
-                                isLoading = false
+                                isSearchingNewUser = false
                             )
                         }
                     }
@@ -138,6 +140,17 @@ class ChatListViewModel @Inject constructor(
                             )
                         }
                     }
+                }
+            }
+
+            ChatListEvents.CloseExitDialog -> {
+                _state.update {
+                    it.copy(isExitDialogOpen = false)
+                }
+            }
+            ChatListEvents.OpenExitDialog -> {
+                _state.update {
+                    it.copy(isExitDialogOpen = true)
                 }
             }
         }

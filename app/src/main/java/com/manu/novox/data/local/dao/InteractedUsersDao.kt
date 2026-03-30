@@ -28,4 +28,7 @@ interface InteractedUsersDao {
 
     @Query("update interacted_users set name=:name , profilePhoto=:profilePhoto where userName=:userName")
     suspend fun updateInteractedUserDetails(userName: String, name: String, profilePhoto: String)
+
+    @Query("select exists(select 1 from interacted_users where userName=:userName)")
+    fun isUserExist(userName: String): Boolean
 }

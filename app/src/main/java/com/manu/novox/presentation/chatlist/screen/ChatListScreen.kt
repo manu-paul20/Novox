@@ -1,5 +1,11 @@
 package com.manu.novox.presentation.chatlist.screen
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,13 +17,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
@@ -71,8 +78,11 @@ fun ChatListScreen(
         ModalBottomSheet(
             onDismissRequest = { onEvent(ChatListEvents.CloseNewUserSheet) },
         ) {
-            ModalDrawerSheet {
-                Column(modifier = Modifier.weight(1f)) {
+            ModalDrawerSheet(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
                         text = "Add new user",
                         fontStyle = state.value.fontStyle,
@@ -83,62 +93,83 @@ fun ChatListScreen(
                         value = state.value.newUserName,
                         onValueChange = { onEvent(ChatListEvents.OnNewUserNameChange(it)) },
                         label = { Text("User Name") },
+                        shape = RoundedCornerShape(20.dp),
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
                     if (state.value.isSearchingNewUser) {
                         CircularProgressIndicator()
                     }
+                    if (state.value.searchingError.isNotBlank()) {
+                        Text(
+                            text = state.value.searchingError,
+                            color = Color.Red,
+                            fontStyle = state.value.fontStyle,
+                            fontSize = state.value.fontSize.sp,
+                            fontFamily = state.value.fontFamily,
+                        )
+                    }
                     if (state.value.searchResult != null) {
+                        Spacer(Modifier.height(10.dp))
                         ElevatedCard(
                             elevation = CardDefaults.elevatedCardElevation(20.dp)
                         ) {
-                            AsyncImage(
-                                model = state.value.searchResult!!.profilePhoto,
-                                contentDescription = "profile pic",
-                                error = painterResource(R.drawable.defaultprofile),
+                            Row(
                                 modifier = Modifier
-                                    .size(50.dp)
-                                    .clip(CircleShape),
-                                contentScale = ContentScale.Crop
-                            )
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
                                     .padding(10.dp)
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = state.value.searchResult!!.userName,
-                                    fontStyle = state.value.fontStyle,
-                                    fontSize = state.value.fontSize.sp,
-                                    fontFamily = state.value.fontFamily,
-                                    fontWeight = FontWeight.Bold
+                                AsyncImage(
+                                    model = state.value.searchResult!!.profilePhoto,
+                                    contentDescription = "profile pic",
+                                    error = painterResource(R.drawable.defaultprofile),
+                                    modifier = Modifier
+                                        .size(50.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
                                 )
-                                Spacer(Modifier.height(2.dp))
-                                Text(
-                                    text = state.value.searchResult!!.name,
-                                    maxLines = 1,
-                                    fontStyle = state.value.fontStyle,
-                                    fontSize = state.value.fontSize.sp,
-                                    fontFamily = state.value.fontFamily,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = Color(0xFF49454F)
-                                )
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(10.dp)
+                                ) {
+                                    Text(
+                                        text = state.value.searchResult!!.userName,
+                                        fontStyle = state.value.fontStyle,
+                                        fontSize = state.value.fontSize.sp,
+                                        fontFamily = state.value.fontFamily,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(Modifier.height(2.dp))
+                                    Text(
+                                        text = state.value.searchResult!!.name,
+                                        maxLines = 1,
+                                        fontStyle = state.value.fontStyle,
+                                        fontSize = state.value.fontSize.sp,
+                                        fontFamily = state.value.fontFamily,
+                                        overflow = TextOverflow.Ellipsis,
+                                        color = Color(0xFF49454F)
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {onEvent(ChatListEvents.AddUser)}
+                                ) {
+                                    Icon(Icons.Default.Add,"Add user")
+                                }
                             }
                         }
                     }
-                }
+                    Spacer(Modifier.height(30.dp))
+                    OutlinedButton(
+                        onClick = {
 
-                OutlinedButton(
-                    onClick = {
-                        if(state.value.searchResult!=null){
-                            onEvent(ChatListEvents.AddUser)
-                        }else{
                             onEvent(ChatListEvents.SearchNewUser)
+
                         }
+                    ) {
+                        Text(text = "Search")
                     }
-                ) {
-                    Text(text = if(state.value.searchResult!=null) "Add" else "Search")
                 }
             }
         }
@@ -148,11 +179,6 @@ fun ChatListScreen(
         modifier = Modifier
             .fillMaxSize(),
         containerColor = Color(0xFFF9F6F0),
-        floatingActionButton = { FloatingActionButton(
-            onClick = { onEvent(ChatListEvents.OpenNewUserSheet) },
-            shape = CircleShape,
-            content = {Icon(Icons.Default.PersonAdd,"Add user")}
-        ) },
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -163,7 +189,7 @@ fun ChatListScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(end = 10.dp),
+                                .padding(10.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
@@ -183,16 +209,38 @@ fun ChatListScreen(
                                     tint = Color(0xFF49454F)
                                 )
                             }
+                            IconButton(
+                                onClick = { onEvent(ChatListEvents.OpenNewUserSheet) }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.PersonAdd,
+                                    contentDescription = "search user"
+                                )
+                            }
                         }
-                        if (state.value.isLocalSearchEnabled) {
-                            OutlinedTextField(
-                                value = state.value.searchQuery,
-                                onValueChange = { onEvent(ChatListEvents.OnSearchQueryChange(it)) },
-                                label = { Text("Search") },
-                                modifier = Modifier.fillMaxWidth(),
-                                singleLine = true,
-                                shape = RoundedCornerShape(20.dp)
-                            )
+                        AnimatedVisibility(
+                            visible = state.value.isLocalSearchEnabled,
+                            enter = expandHorizontally() + fadeIn(),
+                            exit = shrinkHorizontally() + fadeOut()
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                OutlinedTextField(
+                                    value = state.value.searchQuery,
+                                    onValueChange = { onEvent(ChatListEvents.OnSearchQueryChange(it)) },
+                                    label = { Text("Search") },
+                                    modifier = Modifier.weight(1f),
+                                    singleLine = true,
+                                    shape = RoundedCornerShape(20.dp)
+                                )
+                                IconButton(
+                                    onClick = { onEvent(ChatListEvents.CloseLocalSearchBox) }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Close,
+                                        contentDescription = "close search"
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -204,5 +252,13 @@ fun ChatListScreen(
             state = state.value,
             onEvent = onEvent
         )
+        if (state.value.isExitDialogOpen) {
+            ExitDialog(
+                onClose = { onEvent(ChatListEvents.CloseExitDialog) }
+            )
+        }
+    }
+    BackHandler {
+        onEvent(ChatListEvents.OpenExitDialog)
     }
 }

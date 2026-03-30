@@ -9,7 +9,9 @@ import com.manu.novox.core.utils.uploadToCloudinary
 import com.manu.novox.data.local.dao.InteractedUsersDao
 import com.manu.novox.data.local.dao.MessageDao
 import com.manu.novox.data.local.dao.UserDao
+import com.manu.novox.data.local.entity.InteractedUsers
 import com.manu.novox.data.local.entity.Message
+import com.manu.novox.data.local.entity.User
 import com.manu.novox.domain.model.FirebaseUpdate
 import com.manu.novox.domain.repository.ChatRepository
 import com.manu.novox.others.MyConstants
@@ -20,6 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class ChatRepositoryImpl @Inject constructor(
@@ -34,7 +37,7 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun getAllMessages(userName: String): Flow<List<Message>> {
         val currentUser = userDao.getUserDetails().first()
-        val chatId = getChatId(currentUser.userName, userName)
+        val chatId = getChatId(currentUser!!.userName, userName)
 
         firebaseJob?.cancel()
 
@@ -42,12 +45,32 @@ class ChatRepositoryImpl @Inject constructor(
             syncMessageFromFirebase(chatId).collect { update ->
                 when (update) {
                     is FirebaseUpdate.MessageAdded -> {
-                        messageDao.insertMessage(update.message)
-                        interactedUsersDao.updateLastInteractionDetails(
-                            userName,
-                            System.currentTimeMillis(),
-                            update.message.text
-                        )
+                        if(interactedUsersDao.isUserExist(update.message.senderUserName)){
+                            messageDao.insertMessage(update.message)
+                            interactedUsersDao.updateLastInteractionDetails(
+                                userName,
+                                System.currentTimeMillis(),
+                                update.message.text
+                            )
+                        }else{
+                            val user = database.getReference(MyConstants.DATABASE.USERS)
+                                .child(update.message.senderUserName)
+                                .get()
+                                .await()
+                                .getValue(User::class.java)
+                            user?.let {
+                                val interactedUser = InteractedUsers(
+                                     name = it.name,
+                                    userName = it.userName,
+                                    profilePhoto = it.profilePhoto,
+                                    lastInteracted = System.currentTimeMillis(),
+                                    lastMessage = update.message.text
+                                )
+                                interactedUsersDao.addUser(interactedUser)
+                                messageDao.insertMessage(update.message)
+                            }
+                        }
+
                     }
                     is FirebaseUpdate.MessageRemoved -> messageDao.deleteMessage(update.messageId)
                 }
@@ -70,7 +93,7 @@ class ChatRepositoryImpl @Inject constructor(
         onProgress :(String)-> Unit
     ) {
         val currentUser = userDao.getUserDetails().first()
-        val chatId = getChatId(currentUser.userName,receiverUserName)
+        val chatId = getChatId(currentUser!!.userName,receiverUserName)
         val chatRef = database.getReference(MyConstants.DATABASE.MESSAGES).child(chatId)
         val messageId = chatRef.push().key!!
         //first add the image to chat
@@ -106,7 +129,7 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun clearChat(receiverUserName: String) {
         val currentUser = userDao.getUserDetails().first()
-        val chatId = getChatId(currentUser.userName,receiverUserName)
+        val chatId = getChatId(currentUser!!.userName,receiverUserName)
         messageDao.deleteAllMessages(chatId) //only deletes local messages
 
     }

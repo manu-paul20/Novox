@@ -1,5 +1,8 @@
 package com.manu.novox.presentation.chatlist.screen
 
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -79,16 +83,20 @@ fun ChatListContent(
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(Modifier.height(2.dp))
-                    Text(
-                        text = it.lastMessage,
-                        maxLines = 1,
-                        fontStyle = state.fontStyle,
-                        fontSize = state.fontSize.sp,
-                        fontFamily = state.fontFamily,
-                        overflow = TextOverflow.Ellipsis,
-                        color = Color(0xFF49454F)
-                    )
+
+                    if(it.lastMessage.isNotBlank()){
+                        Text(
+                            text = it.lastMessage,
+                            maxLines = 1,
+                            fontStyle = state.fontStyle,
+                            fontSize = state.fontSize.sp,
+                            fontFamily = state.fontFamily,
+                            overflow = TextOverflow.Ellipsis,
+                            color = Color(0xFF49454F)
+                        )
+                    }
                 }
+
                 Text(
                     text = formatter.format(instant),
                     fontStyle = state.fontStyle,
@@ -100,4 +108,5 @@ fun ChatListContent(
             HorizontalDivider(color = Color(0XFFE4E2DB))
         }
     }
+
 }

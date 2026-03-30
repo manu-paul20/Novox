@@ -19,5 +19,6 @@ data class ChatListState(
     val searchingError: String = "",
     val fontSize:Int = 14,
     val fontFamily: FontFamily = FontFamily.Default,
-    val fontStyle: FontStyle = FontStyle.Normal
+    val fontStyle: FontStyle = FontStyle.Normal,
+    val isExitDialogOpen: Boolean = false
 )

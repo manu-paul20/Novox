@@ -26,7 +26,7 @@ fun AuthScreen(
     val onEvent = authViewModel::onEvent
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(state.value.isUserLoggedIn) {
         if (state.value.isUserLoggedIn){
             onNavigateToChatList()
         }

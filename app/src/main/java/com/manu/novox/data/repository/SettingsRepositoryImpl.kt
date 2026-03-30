@@ -10,7 +10,7 @@ class SettingsRepositoryImpl @Inject constructor(
     private val settingsDao: SettingsDao
 ) : SettingsRepository{
     override suspend fun updateSettings(settings: UserSettings) {
-        settingsDao.updateSettings(settings)
+        settingsDao.upsertSettings(settings)
     }
 
     override  fun getUserSettings(): Flow<UserSettings> {

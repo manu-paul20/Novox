@@ -13,6 +13,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.manu.novox.presentation.accountCreation.screen.AccountCreationScreen
 import com.manu.novox.presentation.auth.screen.AuthScreen
+import com.manu.novox.presentation.chatlist.screen.ChatListScreen
 
 @Composable
 fun NavigationRoot() {
@@ -46,12 +47,9 @@ fun NavigationRoot() {
             navController = navController,
             startDestination = Routes.AuthScreen
         ) {
-            composable<Routes.ChatListScreen>{
-
-            }
             composable<Routes.AuthScreen>{
                 AuthScreen(
-                    onNavigateToChatList = { navController.navigate(Routes.ChatScreen) },
+                    onNavigateToChatList = { navController.navigate(Routes.ChatListScreen) },
                     onNavigateToAccountCreation = { navController.navigate(Routes.AccountCreationScreen) }
                 )
             }
@@ -59,6 +57,12 @@ fun NavigationRoot() {
             composable<Routes.AccountCreationScreen> {
                 AccountCreationScreen(
                     onNavigateToChatList = {navController.navigate(Routes.ChatListScreen)}
+                )
+            }
+
+            composable<Routes.ChatListScreen> {
+                ChatListScreen(
+                    onNavigateToAccountCreation = {navController.navigate(Routes.AccountCreationScreen)}
                 )
             }
         }

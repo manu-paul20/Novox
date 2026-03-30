@@ -42,7 +42,7 @@ class InteractedUserRepositoryImpl @Inject constructor(
         2. Delete the user from firebase
          */
            val currentUser = userDao.getUserDetails().first()
-            val chatId = getChatId(currentUser.userName,userName)
+            val chatId = getChatId(currentUser!!.userName,userName)
             val chatRef = database.getReference(MyConstants.DATABASE.MESSAGES)
             chatRef.child(chatId).removeValue().await() // deleted from firebase
             interactedUsersDao.deleteUser(userName) //deleted from local db

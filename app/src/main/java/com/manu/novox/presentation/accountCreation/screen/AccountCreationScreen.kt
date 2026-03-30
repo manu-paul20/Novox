@@ -34,6 +34,8 @@ fun AccountCreationScreen(
             }
         }
     }
+
+    AccountCreationScreenContent(state.value,onEvent)
     if(state.value.isLoading){
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -48,6 +50,4 @@ fun AccountCreationScreen(
             onClose = {onEvent(AccountCreationEvent.ResetErrorMessage)}
         )
     }
-
-    AccountCreationScreenContent(state.value,onEvent)
 }

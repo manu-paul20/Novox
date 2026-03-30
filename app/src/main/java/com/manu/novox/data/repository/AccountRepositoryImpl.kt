@@ -48,7 +48,7 @@ class AccountRepositoryImpl @Inject constructor(
     ) {
             val currentUser = userDao.getUserDetails().first()
             val userRef = firebaseDB.getReference(MyConstants.DATABASE.USERS)
-            val newUser = currentUser.copy(
+            val newUser = currentUser!!.copy(
                 name = name,
                 profilePhoto = profilePicture
             )
@@ -60,7 +60,7 @@ class AccountRepositoryImpl @Inject constructor(
         deleteProfilePhoto()
         val currentUser = userDao.getUserDetails().first()
         val userRef = firebaseDB.getReference(MyConstants.DATABASE.USERS)
-        userRef.child(currentUser.userName).removeValue().await()
+        userRef.child(currentUser!!.userName).removeValue().await()
         userDao.deleteUser(currentUser)
     }
 
@@ -73,13 +73,13 @@ class AccountRepositoryImpl @Inject constructor(
             onProgress = null
         )
         val currentUser = userDao.getUserDetails().first()
-        userDao.updateUserDetails(currentUser.copy(
+        userDao.updateUserDetails(currentUser!!.copy(
             profilePhoto = newProfilePhoto
         ))
     }
 
     suspend fun deleteProfilePhoto(): Unit = withContext(Dispatchers.IO) {
-        val currentPhotoUrl = userDao.getUserDetails().first().profilePhoto
+        val currentPhotoUrl = userDao.getUserDetails().first()!!.profilePhoto
         val publicId = currentPhotoUrl
             .substringAfterLast("/")
             .substringBeforeLast(".")
@@ -87,7 +87,7 @@ class AccountRepositoryImpl @Inject constructor(
         cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap())
     }
 
-    override suspend fun getAccountDetails(): User {
+    override suspend fun getAccountDetails(): User? {
         val currentUser = userDao.getUserDetails().first()
         return currentUser
     }

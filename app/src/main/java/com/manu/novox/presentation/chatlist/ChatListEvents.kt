@@ -19,4 +19,8 @@ sealed interface ChatListEvents{
 
     object AddUser: ChatListEvents
 
+    object OpenExitDialog: ChatListEvents
+
+    object CloseExitDialog: ChatListEvents
+
 }

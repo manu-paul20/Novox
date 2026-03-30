@@ -74,7 +74,7 @@ fun AccountCreationScreenContent(
                         unfocusedContainerColor = Color(0XFFE4E2DB)
                     ),
                     shape = RoundedCornerShape(20.dp),
-                    value = "",
+                    value = state.name,
                     label = { Text("Name") },
                     placeholder = {Text("e.g. Manu Paul")},
                     supportingText = {Text("your real name")},
@@ -91,7 +91,7 @@ fun AccountCreationScreenContent(
                         focusedLabelColor = Color.Black
                     ),
                     shape = RoundedCornerShape(20.dp),
-                    value = "",
+                    value = state.userName,
                     label = { Text("User Name") },
                     placeholder = {Text("e.g. Manu123")},
                     supportingText = {Text("your account's name")},
