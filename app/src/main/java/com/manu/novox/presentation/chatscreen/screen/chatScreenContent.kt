@@ -2,6 +2,7 @@ package com.manu.novox.presentation.chatscreen.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -13,28 +14,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.manu.novox.data.local.entity.Message
+import com.manu.novox.presentation.chatscreen.ChatScreenEvents
+import com.manu.novox.presentation.chatscreen.ChatScreenState
 
 @Composable
-@Preview(showBackground = true, showSystemUi = true)
-fun ChatScreenContent() {
+fun ChatScreenContent(
+    modifier: Modifier,
+    state: ChatScreenState,
+    onEvent:(ChatScreenEvents)-> Unit
+) {
 
     val lazyState = rememberLazyListState()
-    LaunchedEffect(messages.size) {
-        if (messages.isNotEmpty()) {
-            lazyState.animateScrollToItem(messages.size - 1)
+    LaunchedEffect(state.messagesList.size) {
+        if (state.messagesList.isNotEmpty()) {
+            lazyState.animateScrollToItem(state.messagesList.size - 1)
         }
     }
 
     LazyColumn(
         state = lazyState,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().padding(10.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(
-            key = {},
-            items =
+            key = {it.messageId},
+            items = state.messagesList
         ){
-            MessageBubble()
+            MessageBubble(it)
         }
     }
 }

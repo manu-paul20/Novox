@@ -14,6 +14,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -50,16 +51,15 @@ fun MessageBubble(
                             contentScale = ContentScale.Crop
                         )
                     }
-                    Row {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             modifier = Modifier.padding(5.dp),
-                            text=message.text,
-                            textAlign = TextAlign.Start
+                            text=message.text
                         )
-                        Spacer(Modifier.width(20.dp))
+                        Spacer(Modifier.width(10.dp))
                         Text(
                             text = formatter.format(instant),
-                            textAlign = TextAlign.End
+                            modifier = Modifier.padding(2.dp)
                         )
                     }
                 }
