@@ -30,7 +30,7 @@ class AccountCreationViewmodel @Inject constructor(
                     try {
                         accountRepository.createAccount(
                             name = _state.value.name,
-                            userName = _state.value.userName
+                            userName = _state.value.userName.lowercase()
                         )
                         _state.update { it.copy(isLoading = false) }
                         emmitEffect(AccountCreationEffect.NavigateToChatList)

@@ -59,7 +59,8 @@ import com.manu.novox.presentation.chatlist.ChatListViewModel
 @Composable
 fun ChatListScreen(
     viewModel: ChatListViewModel = hiltViewModel(),
-    onNavigateToAccountCreation: () -> Unit
+    onNavigateToAccountCreation: () -> Unit,
+    onClickChat:(userName: String,profilePhoto: String,name: String)-> Unit
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle()
     val onEvent = viewModel::onEvent
@@ -250,7 +251,7 @@ fun ChatListScreen(
         ChatListContent(
             modifier = Modifier.padding(innerPadding),
             state = state.value,
-            onEvent = onEvent
+            onClickChat = onClickChat
         )
         if (state.value.isExitDialogOpen) {
             ExitDialog(

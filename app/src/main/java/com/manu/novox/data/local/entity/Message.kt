@@ -10,6 +10,6 @@ data class Message(
     val chatId: String="",
     val senderUserName: String="",
     val text: String="",
-    val image: String?="",
+    val image: String="",
     val timeStamp: Long=0L
 )

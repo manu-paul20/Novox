@@ -33,10 +33,7 @@ fun MessageBubble(
 ) {
         val formatter = DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneId.systemDefault())
         val instant = Instant.ofEpochMilli(message.timeStamp)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = if (message.senderUserName == "Manu Paul") Arrangement.Start else Arrangement.End
-        ) {
+
 
                 Card(
                     colors = CardDefaults.cardColors(containerColor = Color.Gray)
@@ -59,10 +56,10 @@ fun MessageBubble(
                         Spacer(Modifier.width(10.dp))
                         Text(
                             text = formatter.format(instant),
-                            modifier = Modifier.padding(2.dp)
+                            modifier = Modifier.padding(5.dp)
                         )
                     }
                 }
 
-        }
+
 }

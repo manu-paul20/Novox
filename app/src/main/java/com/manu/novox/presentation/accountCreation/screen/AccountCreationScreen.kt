@@ -1,6 +1,7 @@
 package com.manu.novox.presentation.accountCreation.screen
 
-import android.widget.Toast
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,9 +29,6 @@ fun AccountCreationScreen(
         viewModel.effect.collect { effect->
             when(effect){
                 AccountCreationEffect.NavigateToChatList -> {onNavigateToChatList()}
-                is AccountCreationEffect.ShowToast -> {
-                    Toast.makeText(context,effect.message,Toast.LENGTH_LONG).show()
-                }
             }
         }
     }
@@ -49,5 +47,9 @@ fun AccountCreationScreen(
             errorMessage = state.value.error,
             onClose = {onEvent(AccountCreationEvent.ResetErrorMessage)}
         )
+    }
+
+    BackHandler {
+        (context as? Activity)?.finish()
     }
 }

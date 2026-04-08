@@ -4,22 +4,29 @@ package com.manu.novox.presentation.chatscreen.screen
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -30,10 +37,12 @@ import com.manu.novox.presentation.chatlist.ChatListViewModel
 import com.manu.novox.presentation.chatscreen.ChatScreenEvents
 import com.manu.novox.presentation.chatscreen.ChatScreenViewmodel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
     userName: String,
     profilePhoto: String,
+    name: String,
     viewModel: ChatScreenViewmodel = hiltViewModel()
 ) {
 
@@ -45,18 +54,26 @@ fun ChatScreen(
         viewModel.loadAllMessages(userName)
     }
     Scaffold(
+        modifier = Modifier.imePadding(),
         topBar = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                AsyncImage(
-                    model = profilePhoto,
-                    contentDescription = "user profile photo"
-                )
-                Spacer(Modifier.width(10.dp))
-                Text(userName)
-            }
+            TopAppBar(
+                title = {Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Card(
+                        shape = CircleShape
+                    ){
+                        AsyncImage(
+                            contentScale = ContentScale.Crop,
+                            model = profilePhoto,
+                            contentDescription = "user profile photo"
+                        )
+                    }
+                    Spacer(Modifier.width(10.dp))
+                    Text(name)
+                }}
+            )
         },
         bottomBar = {
             Row(
@@ -64,6 +81,8 @@ fun ChatScreen(
                 modifier = Modifier.padding(5.dp)
             ){
                 OutlinedTextField(
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(20.dp),
                     value = state.value.message,
                     onValueChange = { onEvent(ChatScreenEvents.SetMessage(it)) }
@@ -84,7 +103,6 @@ fun ChatScreen(
         ChatScreenContent(
             modifier = Modifier.padding(innerPadding),
             state = state.value,
-            onEvent = onEvent
         )
     }
 }

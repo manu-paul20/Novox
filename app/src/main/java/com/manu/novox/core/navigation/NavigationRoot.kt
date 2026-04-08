@@ -11,9 +11,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.manu.novox.presentation.accountCreation.screen.AccountCreationScreen
 import com.manu.novox.presentation.auth.screen.AuthScreen
 import com.manu.novox.presentation.chatlist.screen.ChatListScreen
+import com.manu.novox.presentation.chatscreen.screen.ChatScreen
+import okhttp3.Route
 
 @Composable
 fun NavigationRoot() {
@@ -62,7 +65,23 @@ fun NavigationRoot() {
 
             composable<Routes.ChatListScreen> {
                 ChatListScreen(
-                    onNavigateToAccountCreation = {navController.navigate(Routes.AccountCreationScreen)}
+                    onNavigateToAccountCreation = {navController.navigate(Routes.AccountCreationScreen)},
+                    onClickChat ={userName, profilePhoto,name ->
+                        navController.navigate(Routes.ChatScreen(
+                            userName = userName,
+                            profilePhoto = profilePhoto,
+                            name = name
+                        ))
+                    }
+                )
+            }
+
+            composable<Routes.ChatScreen> {
+                val data = it.toRoute<Routes.ChatScreen>()
+                ChatScreen(
+                    userName = data.userName,
+                    profilePhoto = data.profilePhoto,
+                    name = data.name
                 )
             }
         }

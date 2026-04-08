@@ -1,7 +1,9 @@
 package com.manu.novox.presentation.chatscreen.screen
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,8 +22,7 @@ import com.manu.novox.presentation.chatscreen.ChatScreenState
 @Composable
 fun ChatScreenContent(
     modifier: Modifier,
-    state: ChatScreenState,
-    onEvent:(ChatScreenEvents)-> Unit
+    state: ChatScreenState
 ) {
 
     val lazyState = rememberLazyListState()
@@ -33,14 +34,19 @@ fun ChatScreenContent(
 
     LazyColumn(
         state = lazyState,
-        modifier = Modifier.fillMaxSize().padding(10.dp),
+        modifier = modifier.fillMaxSize().padding(10.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(
             key = {it.messageId},
             items = state.messagesList
         ){
-            MessageBubble(it)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = if (it.senderUserName == state.userName) Arrangement.Start else Arrangement.End
+            ) {
+                MessageBubble(it)
+            }
         }
     }
 }

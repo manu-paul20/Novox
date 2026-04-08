@@ -13,7 +13,7 @@ sealed interface Routes {
     object ChatListScreen : Routes
 
     @Serializable
-    object ChatScreen : Routes
+    data class ChatScreen(val userName: String,val profilePhoto: String,val name: String) : Routes
 
     @Serializable
     object SettingsScreen: Routes

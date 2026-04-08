@@ -101,7 +101,7 @@ class ChatListViewModel @Inject constructor(
                         )
                     }
                     try {
-                        val user = interactedUserRepo.searchUser(_state.value.newUserName)
+                        val user = interactedUserRepo.searchUser(_state.value.newUserName.lowercase())
                         _state.update {
                             it.copy(
                                 searchingError = "",

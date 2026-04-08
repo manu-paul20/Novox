@@ -1,8 +1,6 @@
 package com.manu.novox.presentation.chatlist.screen
 
-import android.app.Activity
-import android.widget.Toast
-import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.manu.novox.R
-import com.manu.novox.presentation.chatlist.ChatListEvents
 import com.manu.novox.presentation.chatlist.ChatListState
 import java.time.Instant
 import java.time.ZoneId
@@ -41,7 +37,7 @@ import java.time.format.DateTimeFormatter
 fun ChatListContent(
     modifier: Modifier,
     state: ChatListState,
-    onEvent: (ChatListEvents) -> Unit
+    onClickChat: (userName:String, profilePhoto:String,name: String) -> Unit
 ) {
     val formatter = DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneId.systemDefault())
     LazyColumn(
@@ -57,6 +53,11 @@ fun ChatListContent(
             val instant = Instant.ofEpochMilli(it.lastInteracted)
             Row(
                 modifier = Modifier
+                    .clickable { onClickChat(
+                        it.userName,
+                        it.profilePhoto,
+                        it.name
+                    ) }
                     .fillMaxWidth()
                     .padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically

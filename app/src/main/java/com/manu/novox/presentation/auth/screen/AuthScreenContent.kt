@@ -139,7 +139,7 @@ fun AuthScreenContent(
                     ) {
                         if (state.isSignInMode) {
                             TextButton(
-                                onClick = {}
+                                onClick = {onEvent(AuthEvent.SendPasswordResetEmail)}
                             ) {
                                 Text(
                                     text = "Forgot Password ?",
