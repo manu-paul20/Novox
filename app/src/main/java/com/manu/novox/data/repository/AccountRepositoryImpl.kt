@@ -26,8 +26,8 @@ class AccountRepositoryImpl @Inject constructor(
 
     override suspend fun createAccount(name: String, userName: String) {
             val userRef = firebaseDB.getReference(MyConstants.DATABASE.USERS)
-            val isUserExist = userRef.child(userName).get().await().exists()
-            if(isUserExist){
+
+            if(isUserExist(userName)){
                 throw Exception("User already exists")
             }else{
                 val user = User(
@@ -97,6 +97,11 @@ class AccountRepositoryImpl @Inject constructor(
     override suspend fun signOut() {
         auth.signOut()
         credentialManager.clearCredentialState(ClearCredentialStateRequest())
+    }
+
+    override suspend fun isUserExist(userName: String): Boolean {
+        val userRef = firebaseDB.getReference(MyConstants.DATABASE.USERS)
+       return userRef.child(userName).get().await().exists()
     }
 
 }

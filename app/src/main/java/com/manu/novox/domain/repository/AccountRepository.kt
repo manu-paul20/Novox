@@ -12,6 +12,8 @@ interface AccountRepository {
         profilePicture: String
     )
 
+    suspend fun isUserExist(userName: String): Boolean
+
    suspend fun getAccountDetails(): User?
 
     suspend fun changeProfilePhoto(

@@ -27,8 +27,8 @@ class ChatListViewModel @Inject constructor(
 ) : ViewModel() {
     init {
         viewModelScope.launch {
-            val currentUser = accountRepository.getAccountDetails()
-            if (currentUser == null) {
+            val currentUser = accountRepository.getAccountDetails()?.userName?:""
+            if (!accountRepository.isUserExist(currentUser)) {
                 emitEffect(ChatListEffects.NavigateToAccountCreation)
             }
         }
