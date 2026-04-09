@@ -12,7 +12,6 @@ import com.manu.novox.data.local.entity.User
 import com.manu.novox.domain.repository.AccountRepository
 import com.manu.novox.others.MyConstants
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -46,9 +45,9 @@ class AccountRepositoryImpl @Inject constructor(
         name: String,
         profilePicture: String
     ) {
-            val currentUser = userDao.getUserDetails().first()
+        val currentUser = userDao.getUserDetails()
             val userRef = firebaseDB.getReference(MyConstants.DATABASE.USERS)
-            val newUser = currentUser!!.copy(
+        val newUser = currentUser.copy(
                 name = name,
                 profilePhoto = profilePicture
             )
@@ -58,9 +57,9 @@ class AccountRepositoryImpl @Inject constructor(
 
     override suspend fun deleteAccount() {
         deleteProfilePhoto()
-        val currentUser = userDao.getUserDetails().first()
+        val currentUser = userDao.getUserDetails()
         val userRef = firebaseDB.getReference(MyConstants.DATABASE.USERS)
-        userRef.child(currentUser!!.userName).removeValue().await()
+        userRef.child(currentUser.userName).removeValue().await()
         userDao.deleteUser(currentUser)
     }
 
@@ -72,14 +71,15 @@ class AccountRepositoryImpl @Inject constructor(
             photoUrl = newProfilePhoto,
             onProgress = null
         )
-        val currentUser = userDao.getUserDetails().first()
-        userDao.updateUserDetails(currentUser!!.copy(
+        val currentUser = userDao.getUserDetails()
+        userDao.updateUserDetails(
+            currentUser.copy(
             profilePhoto = newProfilePhoto
         ))
     }
 
     suspend fun deleteProfilePhoto(): Unit = withContext(Dispatchers.IO) {
-        val currentPhotoUrl = userDao.getUserDetails().first()!!.profilePhoto
+        val currentPhotoUrl = userDao.getUserDetails().profilePhoto
         val publicId = currentPhotoUrl
             .substringAfterLast("/")
             .substringBeforeLast(".")
@@ -87,8 +87,8 @@ class AccountRepositoryImpl @Inject constructor(
         cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap())
     }
 
-    override suspend fun getAccountDetails(): User? {
-        val currentUser = userDao.getUserDetails().first()
+    override suspend fun getAccountDetails(): User {
+        val currentUser = userDao.getUserDetails()
         return currentUser
     }
 

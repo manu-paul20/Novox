@@ -9,7 +9,6 @@ import com.manu.novox.data.local.entity.User
 import com.manu.novox.domain.repository.InteractedUserRepository
 import com.manu.novox.others.MyConstants
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -41,8 +40,8 @@ class InteractedUserRepositoryImpl @Inject constructor(
         1. Delete the user from interacted user list
         2. Delete the user from firebase
          */
-           val currentUser = userDao.getUserDetails().first()
-            val chatId = getChatId(currentUser!!.userName,userName)
+        val currentUser = userDao.getUserDetails()
+        val chatId = getChatId(currentUser.userName, userName)
             val chatRef = database.getReference(MyConstants.DATABASE.MESSAGES)
             chatRef.child(chatId).removeValue().await() // deleted from firebase
             interactedUsersDao.deleteUser(userName) //deleted from local db
@@ -94,6 +93,10 @@ class InteractedUserRepositoryImpl @Inject constructor(
             )
         }
 
+    }
+
+    override fun isUserExist(userName: String): Boolean {
+        return interactedUsersDao.isUserExist(userName)
     }
 
 }

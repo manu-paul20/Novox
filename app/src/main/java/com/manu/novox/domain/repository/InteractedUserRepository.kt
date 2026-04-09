@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface InteractedUserRepository {
 
+    fun isUserExist(userName: String): Boolean
     suspend fun addNewUserToChatList(
        user: User
     )

@@ -33,8 +33,8 @@ class ChatRepositoryImpl @Inject constructor(
     private var firebaseJob: Job? = null
 
     override suspend fun getAllMessages(userName: String): Flow<List<Message>> {
-        val currentUser = userDao.getUserDetails().first()
-        val chatId = getChatId(currentUser!!.userName, userName)
+        val currentUser = userDao.getUserDetails()
+        val chatId = getChatId(currentUser.userName, userName)
 
         firebaseJob?.cancel()
 
@@ -71,8 +71,8 @@ class ChatRepositoryImpl @Inject constructor(
         imageUrl: String,
         onProgress: ((String) -> Unit)?
     ) {
-        val currentUser = userDao.getUserDetails().first()
-        val chatId = getChatId(currentUser!!.userName,receiverUserName)
+        val currentUser = userDao.getUserDetails()
+        val chatId = getChatId(currentUser.userName,receiverUserName)
         val chatRef = database.getReference(MyConstants.DATABASE.MESSAGES).child(chatId)
         val messageId = chatRef.push().key!!
         //first add the image to chat
@@ -107,8 +107,8 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun clearChat(receiverUserName: String) {
-        val currentUser = userDao.getUserDetails().first()
-        val chatId = getChatId(currentUser!!.userName,receiverUserName)
+        val currentUser = userDao.getUserDetails()
+        val chatId = getChatId(currentUser.userName,receiverUserName)
         messageDao.deleteAllMessages(chatId) //only deletes local messages
 
     }
@@ -158,5 +158,6 @@ class ChatRepositoryImpl @Inject constructor(
             messageRef.removeEventListener(listener)
         }
     }
+
 
 }

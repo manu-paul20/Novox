@@ -15,7 +15,7 @@ interface UserDao {
     suspend fun addUser(user: User)
 
     @Query("select * from user")
-    fun getUserDetails(): Flow<User?>
+    fun getUserDetails(): User
 
     @Update
     suspend fun updateUserDetails(user: User)
