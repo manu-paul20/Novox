@@ -10,6 +10,7 @@ import com.manu.novox.core.utils.toFontFamily
 import com.manu.novox.core.utils.toFontStyle
 import com.manu.novox.data.local.dao.UserDao
 import com.manu.novox.data.local.entity.User
+import com.manu.novox.domain.model.InboxItem
 import com.manu.novox.domain.repository.AccountRepository
 import com.manu.novox.domain.repository.InteractedUserRepository
 import com.manu.novox.domain.repository.SettingsRepository
@@ -36,6 +37,7 @@ class ChatListViewModel @Inject constructor(
     private val database: FirebaseDatabase
 ) : ViewModel() {
     init {
+        startListeningToInbox()
         viewModelScope.launch {
             val currentUser = accountRepository.getAccountDetails()?.userName?:""
             if (!accountRepository.isUserExist(currentUser)) {
@@ -183,6 +185,7 @@ class ChatListViewModel @Inject constructor(
                     p1: String?
                 ) {
                     val userName = p0.key ?: return
+                    val inboxItem = p0.getValue(InboxItem::class.java)
                     viewModelScope.launch(Dispatchers.IO) {
                         if(!interactedUserRepo.isUserExist(userName)){
                             val userSnapshot = database.getReference(MyConstants.DATABASE.USERS)
@@ -195,10 +198,16 @@ class ChatListViewModel @Inject constructor(
                                 interactedUserRepo.addNewUserToChatList(it)
                                 interactedUserRepo.updateInteractedUserDetails(
                                     userName = it.userName,
-                                    lastMessage = p0.value.toString(),
-                                    lastInteracted = System.currentTimeMillis()
+                                    lastMessage = inboxItem?.message?:"",
+                                    lastInteracted = inboxItem?.timeStamp?: System.currentTimeMillis()
                                 )
                             }
+                        }else{
+                            interactedUserRepo.updateInteractedUserDetails(
+                                userName = p0.key!!,
+                                lastMessage = inboxItem?.message?:"",
+                                lastInteracted = inboxItem?.timeStamp?: System.currentTimeMillis()
+                            )
                         }
                     }
                 }
@@ -208,12 +217,12 @@ class ChatListViewModel @Inject constructor(
                     p1: String?
                 ) {
                    val userName = p0.key?:return
-                    val newMessage = p0.value.toString()
+                    val inboxItem = p0.getValue(InboxItem::class.java)
                     viewModelScope.launch(Dispatchers.IO) {
                         interactedUserRepo.updateInteractedUserDetails(
                             userName = userName,
-                            lastMessage = newMessage,
-                            lastInteracted = System.currentTimeMillis()
+                            lastMessage = inboxItem?.message?:"",
+                            lastInteracted = inboxItem?.timeStamp?: System.currentTimeMillis()
                         )
                     }
                 }
