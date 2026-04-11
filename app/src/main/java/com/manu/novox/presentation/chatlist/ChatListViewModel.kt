@@ -198,19 +198,13 @@ class ChatListViewModel @Inject constructor(
                             val user = userSnapshot.getValue(User::class.java)
 
                             user?.let {
-                                interactedUserRepo.addNewUserToChatList(it)
+                                interactedUserRepo.addNewUserToChatList(it,inboxItem?.message?:"")
                                 interactedUserRepo.updateInteractedUserDetails(
                                     userName = it.userName,
                                     lastMessage = inboxItem?.message?:"",
                                     lastInteracted = inboxItem?.timeStamp?: System.currentTimeMillis()
                                 )
                             }
-                        }else{
-                            interactedUserRepo.updateInteractedUserDetails(
-                                userName = p0.key!!,
-                                lastMessage = inboxItem?.message?:"",
-                                lastInteracted = inboxItem?.timeStamp?: System.currentTimeMillis()
-                            )
                         }
                     }
                 }

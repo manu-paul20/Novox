@@ -17,9 +17,7 @@ class InteractedUserRepositoryImpl @Inject constructor(
     private val interactedUsersDao: InteractedUsersDao,
     private val userDao: UserDao
 ): InteractedUserRepository {
-    override suspend fun addNewUserToChatList(user: User) {
-        //here we need to do only one thing
-        //1. Add the new user to interacted user list
+    override suspend fun addNewUserToChatList(user: User,lastMessage: String) {
 
         interactedUsersDao.addUser(
             user = InteractedUsers(
@@ -27,7 +25,7 @@ class InteractedUserRepositoryImpl @Inject constructor(
                         userName = user.userName,
                         profilePhoto = user.profilePhoto,
                 lastInteracted = System.currentTimeMillis(),
-                lastMessage = ""
+                lastMessage = lastMessage
             )
         )
 
