@@ -34,7 +34,7 @@ fun AuthScreen(
     LaunchedEffect(true) {
         authViewModel.authEffect.collect { effect->
             when (effect){
-                AuthEffect.NavigateToHome->{
+                AuthEffect.NavigateToChatList->{
                     onNavigateToChatList()
                 }
 

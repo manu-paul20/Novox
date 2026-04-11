@@ -11,6 +11,7 @@ import com.manu.novox.data.local.dao.MessageDao
 import com.manu.novox.data.local.dao.UserDao
 import com.manu.novox.data.local.entity.Message
 import com.manu.novox.domain.model.FirebaseUpdate
+import com.manu.novox.domain.model.InboxItem
 import com.manu.novox.domain.repository.ChatRepository
 import com.manu.novox.others.MyConstants
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +19,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,7 +34,7 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun getAllMessages(userName: String): Flow<List<Message>> {
         val currentUser = userDao.getUserDetails()
-        val chatId = getChatId(currentUser.userName, userName)
+        val chatId = getChatId(currentUser!!.userName, userName)
 
         firebaseJob?.cancel()
 
@@ -72,13 +72,14 @@ class ChatRepositoryImpl @Inject constructor(
         onProgress: ((String) -> Unit)?
     ) {
         val currentUser = userDao.getUserDetails()
-        val chatId = getChatId(currentUser.userName,receiverUserName)
+        val chatId = getChatId(currentUser!!.userName,receiverUserName)
         val chatRef = database.getReference(MyConstants.DATABASE.MESSAGES).child(chatId)
         val messageId = chatRef.push().key!!
+        val inboxRef = database.getReference(MyConstants.DATABASE.INBOX)
         //first add the image to chat
         var message = Message(
             messageId = messageId,
-            senderUserName = currentUser.userName,
+            senderUserName = currentUser!!.userName,
             text = text,
             image = imageUrl,
             timeStamp = System.currentTimeMillis(),
@@ -98,6 +99,21 @@ class ChatRepositoryImpl @Inject constructor(
         message = message.copy(image = cloudinaryUrl)
         messageDao.insertMessage(message)
         chatRef.child(messageId).setValue(message)
+
+        inboxRef.child(receiverUserName).child(currentUser.userName).setValue(
+            InboxItem(
+                message = message.text,
+                timeStamp = message.timeStamp
+            )
+        )
+        inboxRef.child(currentUser.userName).child(receiverUserName).setValue(
+            InboxItem(
+                message = message.text,
+                timeStamp = message.timeStamp
+            )
+        )
+
+
         interactedUsersDao.updateLastInteractionDetails(
             receiverUserName,
             System.currentTimeMillis(),
@@ -108,7 +124,7 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun clearChat(receiverUserName: String) {
         val currentUser = userDao.getUserDetails()
-        val chatId = getChatId(currentUser.userName,receiverUserName)
+        val chatId = getChatId(currentUser!!.userName,receiverUserName)
         messageDao.deleteAllMessages(chatId) //only deletes local messages
 
     }

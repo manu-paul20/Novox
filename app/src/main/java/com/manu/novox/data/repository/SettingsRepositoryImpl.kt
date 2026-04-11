@@ -13,7 +13,7 @@ class SettingsRepositoryImpl @Inject constructor(
         settingsDao.upsertSettings(settings)
     }
 
-    override  fun getUserSettings(): UserSettings {
+    override  fun getUserSettings(): Flow<UserSettings> {
         return  settingsDao.getSetting()
     }
 

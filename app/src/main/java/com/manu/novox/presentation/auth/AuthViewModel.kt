@@ -2,6 +2,7 @@ package com.manu.novox.presentation.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.manu.novox.domain.repository.AccountRepository
 import com.manu.novox.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val accountRepository: AccountRepository
 ): ViewModel(){
     private val _state = MutableStateFlow(AuthState(isUserLoggedIn = authRepository.isUserLoggedIn()))
     val state = _state.asStateFlow()
@@ -68,6 +70,7 @@ class AuthViewModel @Inject constructor(
                         _state.value.email,
                         _state.value.pass
                     )
+
                 })
             }
 
@@ -75,14 +78,7 @@ class AuthViewModel @Inject constructor(
                 handleAuthTask (
                     task = {
                     authRepository.signInWithGoogle(event.context)
-                },
-                    onSuccess = {
-                            _state.update {
-                                it.copy(isLoading = false)
-                            }
-                            _authEffect.emit(AuthEffect.NavigateToHome)
-
-                    }
+                }
                 )
             }
 
@@ -148,8 +144,15 @@ class AuthViewModel @Inject constructor(
             try {
                 task()
                if(onSuccess==null){
+
+                   val user  = accountRepository.getUserFromEmail()
                    _state.update { it.copy(isLoading = false) }
-                   _authEffect.emit(AuthEffect.NavigateToHome)
+                   if(user != null){
+                        accountRepository.saveUserToDB(user)
+                       _authEffect.emit(AuthEffect.NavigateToChatList)
+                   }else{
+                       _authEffect.emit(AuthEffect.NavigateToAccountCreation)
+                   }
                }else{
                    onSuccess()
                }

@@ -12,5 +12,5 @@ interface SettingsDao {
     suspend fun upsertSettings(settings: UserSettings)
 
     @Query("select * from settings where id=1")
-    fun getSetting(): UserSettings
+    fun getSetting(): Flow<UserSettings>
 }

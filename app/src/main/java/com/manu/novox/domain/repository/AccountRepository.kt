@@ -12,7 +12,9 @@ interface AccountRepository {
         profilePicture: String
     )
 
-    suspend fun isUserExist(userName: String): Boolean
+    suspend fun getUserFromEmail(): User?
+
+    suspend fun searchUserByUserName(userName: String): Boolean
 
    suspend fun getAccountDetails(): User?
 
@@ -24,5 +26,7 @@ interface AccountRepository {
     suspend fun deleteAccount()
 
     suspend fun signOut()
+
+    suspend fun saveUserToDB(user: User)
 
 }

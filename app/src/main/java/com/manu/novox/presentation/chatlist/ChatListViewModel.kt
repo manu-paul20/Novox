@@ -32,28 +32,31 @@ import javax.inject.Inject
 class ChatListViewModel @Inject constructor(
     private val interactedUserRepo: InteractedUserRepository,
     private val accountRepository: AccountRepository,
-    private val settingsRepository: SettingsRepository,
+    settingsRepository: SettingsRepository,
     private val userDao: UserDao,
     private val database: FirebaseDatabase
 ) : ViewModel() {
     init {
-        startListeningToInbox()
         viewModelScope.launch {
-            val currentUser = accountRepository.getAccountDetails()?.userName?:""
-            if (!accountRepository.isUserExist(currentUser)) {
+            val currentUser = accountRepository.getAccountDetails()
+            val userName = currentUser?.userName?:""
+            if (!accountRepository.searchUserByUserName(userName)) {
                 emitEffect(ChatListEffects.NavigateToAccountCreation)
+            }else{
+                userDao.addUser(currentUser!!)
+                startListeningToInbox()
             }
         }
     }
     private val _state = MutableStateFlow(ChatListState())
     private val interactedUsers = interactedUserRepo.getAllUser()
-    private val settings = settingsRepository.getUserSettings()
+    private val _settings = settingsRepository.getUserSettings()
 
 
     private val _effect = MutableSharedFlow<ChatListEffects>()
     val effect = _effect.asSharedFlow()
 
-    val state = combine(_state, interactedUsers) { state, users ->
+    val state = combine(_state, interactedUsers,_settings) { state, users,settings ->
         val userList = users.filter {
             it.name.contains(state.searchQuery.replace(" ", ""), ignoreCase = true)
         }
@@ -176,7 +179,7 @@ class ChatListViewModel @Inject constructor(
 
     fun startListeningToInbox() {
         viewModelScope.launch(Dispatchers.IO) {
-            val myUserName = userDao.getUserDetails().userName
+            val myUserName = userDao.getUserDetails()?.userName?:return@launch
             val inboxRef = database.getReference(MyConstants.DATABASE.INBOX).child(myUserName)
 
             inboxRef.addChildEventListener(object : ChildEventListener {

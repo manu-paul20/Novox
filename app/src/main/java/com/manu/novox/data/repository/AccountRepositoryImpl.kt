@@ -26,7 +26,7 @@ class AccountRepositoryImpl @Inject constructor(
     override suspend fun createAccount(name: String, userName: String) {
             val userRef = firebaseDB.getReference(MyConstants.DATABASE.USERS)
 
-            if(isUserExist(userName)){
+            if(searchUserByUserName(userName)){
                 throw Exception("User already exists")
             }else{
                 val user = User(
@@ -47,7 +47,7 @@ class AccountRepositoryImpl @Inject constructor(
     ) {
         val currentUser = userDao.getUserDetails()
             val userRef = firebaseDB.getReference(MyConstants.DATABASE.USERS)
-        val newUser = currentUser.copy(
+        val newUser = currentUser!!.copy(
                 name = name,
                 profilePhoto = profilePicture
             )
@@ -59,7 +59,7 @@ class AccountRepositoryImpl @Inject constructor(
         deleteProfilePhoto()
         val currentUser = userDao.getUserDetails()
         val userRef = firebaseDB.getReference(MyConstants.DATABASE.USERS)
-        userRef.child(currentUser.userName).removeValue().await()
+        userRef.child(currentUser!!.userName).removeValue().await()
         userDao.deleteUser(currentUser)
     }
 
@@ -73,13 +73,13 @@ class AccountRepositoryImpl @Inject constructor(
         )
         val currentUser = userDao.getUserDetails()
         userDao.updateUserDetails(
-            currentUser.copy(
+            currentUser!!.copy(
             profilePhoto = newProfilePhoto
         ))
     }
 
     suspend fun deleteProfilePhoto(): Unit = withContext(Dispatchers.IO) {
-        val currentPhotoUrl = userDao.getUserDetails().profilePhoto
+        val currentPhotoUrl = userDao.getUserDetails()!!.profilePhoto
         val publicId = currentPhotoUrl
             .substringAfterLast("/")
             .substringBeforeLast(".")
@@ -87,7 +87,7 @@ class AccountRepositoryImpl @Inject constructor(
         cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap())
     }
 
-    override suspend fun getAccountDetails(): User {
+    override suspend fun getAccountDetails(): User? {
         val currentUser = userDao.getUserDetails()
         return currentUser
     }
@@ -99,9 +99,33 @@ class AccountRepositoryImpl @Inject constructor(
         credentialManager.clearCredentialState(ClearCredentialStateRequest())
     }
 
-    override suspend fun isUserExist(userName: String): Boolean {
+    override suspend fun getUserFromEmail(): User? {
+        val email = auth.currentUser?.email?:""
         val userRef = firebaseDB.getReference(MyConstants.DATABASE.USERS)
-       return userRef.child(userName).get().await().exists()
+        val snapshot = userRef
+            .orderByChild("email")
+            .equalTo(email)
+            .get()
+            .await()
+            if(snapshot.exists()){
+                val userSnapShot = snapshot.children.first()
+                val user = userSnapShot.getValue(User::class.java)
+                return user
+            }else{
+                return null
+            }
+
     }
+
+    override suspend fun searchUserByUserName(userName: String): Boolean {
+        val userRef = firebaseDB.getReference(MyConstants.DATABASE.USERS)
+        val snapshot = userRef.child(userName).get().await()
+        return snapshot.exists()
+    }
+
+    override suspend fun saveUserToDB(user: User) {
+        userDao.addUser(user)
+    }
+
 
 }
