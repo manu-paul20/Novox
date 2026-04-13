@@ -12,6 +12,7 @@ import com.manu.novox.data.local.dao.UserDao
 import com.manu.novox.data.local.entity.User
 import com.manu.novox.domain.model.InboxItem
 import com.manu.novox.domain.repository.AccountRepository
+import com.manu.novox.domain.repository.ChatRepository
 import com.manu.novox.domain.repository.InteractedUserRepository
 import com.manu.novox.domain.repository.SettingsRepository
 import com.manu.novox.others.MyConstants
@@ -33,18 +34,17 @@ class ChatListViewModel @Inject constructor(
     private val interactedUserRepo: InteractedUserRepository,
     private val accountRepository: AccountRepository,
     settingsRepository: SettingsRepository,
-    private val userDao: UserDao,
-    private val database: FirebaseDatabase
+   private val chatRepository: ChatRepository
 ) : ViewModel() {
     init {
         viewModelScope.launch {
+            chatRepository.syncAllContactsFromFirebase(viewModelScope)
             val currentUser = accountRepository.getAccountDetails()
             val userName = currentUser?.userName?:""
             if (!accountRepository.searchUserByUserName(userName)) {
                 emitEffect(ChatListEffects.NavigateToAccountCreation)
             }else{
-                userDao.addUser(currentUser!!)
-                startListeningToInbox()
+                chatRepository.startListeningToInbox(viewModelScope)
             }
         }
     }
@@ -174,71 +174,6 @@ class ChatListViewModel @Inject constructor(
     private fun emitEffect(effect: ChatListEffects) {
         viewModelScope.launch {
             _effect.emit(effect)
-        }
-    }
-
-    fun startListeningToInbox() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val myUserName = userDao.getUserDetails()?.userName?:return@launch
-            val inboxRef = database.getReference(MyConstants.DATABASE.INBOX).child(myUserName)
-
-            inboxRef.addChildEventListener(object : ChildEventListener {
-                override fun onChildAdded(
-                    p0: DataSnapshot,
-                    p1: String?
-                ) {
-                    val userName = p0.key ?: return
-                    val inboxItem = p0.getValue(InboxItem::class.java)
-                    viewModelScope.launch(Dispatchers.IO) {
-                        if(!interactedUserRepo.isUserExist(userName)){
-                            val userSnapshot = database.getReference(MyConstants.DATABASE.USERS)
-                                .child(userName)
-                                .get()
-                                .await()
-                            val user = userSnapshot.getValue(User::class.java)
-
-                            user?.let {
-                                interactedUserRepo.addNewUserToChatList(it,inboxItem?.message?:"")
-                                interactedUserRepo.updateInteractedUserDetails(
-                                    userName = it.userName,
-                                    lastMessage = inboxItem?.message?:"",
-                                    lastInteracted = inboxItem?.timeStamp?: System.currentTimeMillis()
-                                )
-                            }
-                        }
-                    }
-                }
-
-                override fun onChildChanged(
-                    p0: DataSnapshot,
-                    p1: String?
-                ) {
-                   val userName = p0.key?:return
-                    val inboxItem = p0.getValue(InboxItem::class.java)
-                    viewModelScope.launch(Dispatchers.IO) {
-                        interactedUserRepo.updateInteractedUserDetails(
-                            userName = userName,
-                            lastMessage = inboxItem?.message?:"",
-                            lastInteracted = inboxItem?.timeStamp?: System.currentTimeMillis()
-                        )
-                    }
-                }
-
-                override fun onChildRemoved(p0: DataSnapshot) {
-
-                }
-
-                override fun onChildMoved(
-                    p0: DataSnapshot,
-                    p1: String?
-                ) {
-
-                }
-
-                override fun onCancelled(p0: DatabaseError) {
-
-                }
-            })
         }
     }
 }

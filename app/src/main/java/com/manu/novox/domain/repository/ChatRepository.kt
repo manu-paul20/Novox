@@ -1,6 +1,7 @@
 package com.manu.novox.domain.repository
 
 import com.manu.novox.data.local.entity.Message
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
 
@@ -23,4 +24,8 @@ interface ChatRepository {
     suspend fun clearChat(
         receiverUserName: String
     )
+
+     fun syncAllContactsFromFirebase(coroutineScope: CoroutineScope)
+
+    fun startListeningToInbox(coroutineScope: CoroutineScope)
 }
