@@ -74,6 +74,14 @@ class ChatScreenViewmodel @Inject constructor(
                     )
                 }
             }
+
+            is ChatScreenEvents.SetImageUrl -> {
+                _state.update { it.copy(imageUrl = event.url) }
+            }
+
+            ChatScreenEvents.ClearImage -> {
+                _state.update { it.copy(imageUrl = "") }
+            }
         }
 
     }

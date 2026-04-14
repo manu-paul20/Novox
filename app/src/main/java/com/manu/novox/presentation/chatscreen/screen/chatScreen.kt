@@ -1,6 +1,10 @@
 
 package com.manu.novox.presentation.chatscreen.screen
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,7 +16,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,6 +57,13 @@ fun ChatScreen(
 
     val state = viewModel.state.collectAsStateWithLifecycle()
     val onEvent = viewModel::onEvent
+    val activityLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ){uri: Uri? ->
+        uri?.let {
+            onEvent(ChatScreenEvents.SetImageUrl(it.toString()))
+        }
+    }
 
     LaunchedEffect(Unit) {
         onEvent(ChatScreenEvents.SetUserDetails(userName,profilePhoto))
@@ -76,26 +92,57 @@ fun ChatScreen(
             )
         },
         bottomBar = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(5.dp)
-            ){
-                OutlinedTextField(
-                    singleLine = true,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(20.dp),
-                    value = state.value.message,
-                    onValueChange = { onEvent(ChatScreenEvents.SetMessage(it)) }
-                )
-                IconButton(
-                    onClick = {
-                        onEvent(ChatScreenEvents.SendMessage)
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.Send,
-                        contentDescription = "send message"
+            Column{
+                if(state.value.imageUrl.isNotBlank()){
+                    BadgedBox(
+                        badge = {
+                            IconButton(
+                                onClick = {onEvent(ChatScreenEvents.ClearImage)}
+                            ) {
+                                Icon(Icons.Default.Close,"clear image")
+                            }
+                        },
+                        content = {
+                            AsyncImage(
+                                model = state.value.imageUrl,
+                                modifier = Modifier
+                                    .size(200.dp)
+                                    .clip(RoundedCornerShape(20.dp))
+                                ,
+                                contentDescription = "selected image"
+                            )
+                        }
                     )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(5.dp)
+                ) {
+                    IconButton(
+                        onClick = { activityLauncher.launch("image/*") }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AddAPhoto,
+                            contentDescription = "add photo"
+                        )
+                    }
+                    OutlinedTextField(
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(20.dp),
+                        value = state.value.message,
+                        onValueChange = { onEvent(ChatScreenEvents.SetMessage(it)) }
+                    )
+                    IconButton(
+                        onClick = {
+                            onEvent(ChatScreenEvents.SendMessage)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Send,
+                            contentDescription = "send message"
+                        )
+                    }
                 }
             }
         }

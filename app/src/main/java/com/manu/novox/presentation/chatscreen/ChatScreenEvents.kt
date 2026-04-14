@@ -6,6 +6,9 @@ sealed interface ChatScreenEvents {
     object SendMessage: ChatScreenEvents
 
     data class SetMessage(val message: String): ChatScreenEvents
+    data class SetImageUrl(val url: String): ChatScreenEvents
+
+    object ClearImage: ChatScreenEvents
 
     object ClearChat: ChatScreenEvents
 
