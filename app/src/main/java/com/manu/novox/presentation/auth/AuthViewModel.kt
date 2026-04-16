@@ -1,9 +1,12 @@
 package com.manu.novox.presentation.auth
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.manu.novox.data.local.entity.UserSettings
 import com.manu.novox.domain.repository.AccountRepository
 import com.manu.novox.domain.repository.AuthRepository
+import com.manu.novox.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val accountRepository: AccountRepository
+    private val accountRepository: AccountRepository,
+    private val settingsRepo: SettingsRepository
 ): ViewModel(){
     private val _state = MutableStateFlow(AuthState(isUserLoggedIn = authRepository.isUserLoggedIn()))
     val state = _state.asStateFlow()
@@ -149,6 +153,7 @@ class AuthViewModel @Inject constructor(
                    _state.update { it.copy(isLoading = false) }
                    if(user != null){
                         accountRepository.saveUserToDB(user)
+                       settingsRepo.updateKey(user.userName)
                        _authEffect.emit(AuthEffect.NavigateToChatList)
                    }else{
                        _authEffect.emit(AuthEffect.NavigateToAccountCreation)

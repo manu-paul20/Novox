@@ -17,4 +17,8 @@ class SettingsRepositoryImpl @Inject constructor(
         return  settingsDao.getSetting()
     }
 
+    override suspend fun updateKey(key: String) {
+        settingsDao.updateKey(key)
+    }
+
 }

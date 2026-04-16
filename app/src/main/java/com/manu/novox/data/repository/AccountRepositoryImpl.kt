@@ -7,8 +7,10 @@ import com.cloudinary.utils.ObjectUtils
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.manu.novox.core.utils.uploadToCloudinary
+import com.manu.novox.data.local.dao.SettingsDao
 import com.manu.novox.data.local.dao.UserDao
 import com.manu.novox.data.local.entity.User
+import com.manu.novox.data.local.entity.UserSettings
 import com.manu.novox.domain.repository.AccountRepository
 import com.manu.novox.others.MyConstants
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +22,8 @@ class AccountRepositoryImpl @Inject constructor(
     private val firebaseDB: FirebaseDatabase,
     private val auth: FirebaseAuth,
     private val userDao: UserDao,
-    private val credentialManager: CredentialManager
+    private val credentialManager: CredentialManager,
+    private val settingsDao: SettingsDao
 ) : AccountRepository{
 
     override suspend fun createAccount(name: String, userName: String) {
@@ -37,7 +40,7 @@ class AccountRepositoryImpl @Inject constructor(
                 )
                     userRef.child(userName).setValue(user).await()
                     userDao.addUser(user)
-
+                    settingsDao.updateKey(userName)
             }
     }
 

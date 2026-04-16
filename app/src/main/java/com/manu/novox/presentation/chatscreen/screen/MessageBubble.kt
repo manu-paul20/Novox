@@ -1,11 +1,9 @@
 package com.manu.novox.presentation.chatscreen.screen
 
-import androidx.compose.foundation.background
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -21,22 +19,35 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import com.manu.novox.core.utils.toColor
+import com.manu.novox.core.utils.toFontFamily
+import com.manu.novox.core.utils.toFontStyle
 import com.manu.novox.data.local.entity.Message
+import com.manu.novox.data.local.entity.UserSettings
+import com.manu.novox.presentation.chatscreen.ChatScreenState
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun MessageBubble(
-    message: Message
+    message: Message,
+    settings: UserSettings
 ) {
         val formatter = DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneId.systemDefault())
         val instant = Instant.ofEpochMilli(message.timeStamp)
 
-
+    Log.i("user name",settings.userName)
                 Card(
-                    colors = CardDefaults.cardColors(containerColor = Color.Gray)
+                    colors = CardDefaults.cardColors(
+                        containerColor = if(settings.userName == message.senderUserName){
+                            settings.messageBoxColor.toColor()
+                        }else{
+                            settings.friendMessageBoxColor.toColor()
+                        }
+                    )
                 ) {
                     if(message.image.isNotBlank()){
                         AsyncImage(
@@ -48,13 +59,26 @@ fun MessageBubble(
                             contentScale = ContentScale.Crop
                         )
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.align(Alignment.End),
+                        verticalAlignment = Alignment.Bottom,
+                    ) {
+                        if (message.text.isNotBlank()) {
+                            Text(
+                                modifier = Modifier.padding(5.dp).weight(1f,fill = false),
+                                text = message.text,
+                                fontStyle = settings.fontStyle.toFontStyle(),
+                                fontFamily = settings.fontFamily.toFontFamily(),
+                                color = settings.textColor.toColor(),
+                                fontSize = settings.textFontSize.sp
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                        }
                         Text(
-                            modifier = Modifier.padding(5.dp),
-                            text=message.text
-                        )
-                        Spacer(Modifier.width(10.dp))
-                        Text(
+                            fontSize = 10.sp,
+                            fontStyle = settings.fontStyle.toFontStyle(),
+                            fontFamily = settings.fontFamily.toFontFamily(),
+                            color = settings.textColor.toColor(),
                             text = formatter.format(instant),
                             modifier = Modifier.padding(5.dp)
                         )

@@ -9,13 +9,12 @@ import com.manu.novox.core.utils.NovoxFontStyle
 
 @Entity(tableName = "settings")
 data class UserSettings(
-    @PrimaryKey val id: Int = 1,
+    @PrimaryKey val userName: String = "key0",
     val fontFamily: NovoxFontFamily = NovoxFontFamily.Default,
     val textFontSize: Int = 14,
     val appFontSize: Int = 14,
     val fontStyle: NovoxFontStyle = NovoxFontStyle.Normal,
-    val myMessageBoxColor: NovoxColors = NovoxColors.Light_Blue,
-    val myTextColor: NovoxColors = NovoxColors.White,
-    val friendsMessageBoxColor: NovoxColors = NovoxColors.Magenta,
-    val friendsTextColor: NovoxColors = NovoxColors.White
+    val messageBoxColor: NovoxColors = NovoxColors.Light_Blue,
+    val textColor: NovoxColors = NovoxColors.Black,
+    val friendMessageBoxColor: NovoxColors = NovoxColors.White
 )

@@ -1,6 +1,7 @@
 package com.manu.novox.presentation.chatscreen
 
 import com.manu.novox.data.local.entity.Message
+import com.manu.novox.data.local.entity.UserSettings
 
 data class ChatScreenState(
     val userName: String = "",
@@ -8,5 +9,6 @@ data class ChatScreenState(
    val message: String = "",
     val imageUrl: String = "",
     val messagesList: List<Message> = emptyList(),
-    val isTyping: Boolean = false
+    val isTyping: Boolean = false,
+    val settings: UserSettings = UserSettings()
 )

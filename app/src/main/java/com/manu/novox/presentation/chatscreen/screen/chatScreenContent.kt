@@ -1,5 +1,6 @@
 package com.manu.novox.presentation.chatscreen.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.manu.novox.data.local.entity.Message
@@ -33,8 +35,9 @@ fun ChatScreenContent(
     }
 
     LazyColumn(
+
         state = lazyState,
-        modifier = modifier.fillMaxSize().padding(10.dp),
+        modifier = modifier.fillMaxSize().padding(horizontal = 10.dp).background(Color(0xFFF9F6F0)),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(
@@ -45,7 +48,10 @@ fun ChatScreenContent(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = if (it.senderUserName == state.userName) Arrangement.Start else Arrangement.End
             ) {
-                MessageBubble(it)
+                MessageBubble(
+                    message = it,
+                    settings = state.settings
+                )
             }
         }
     }

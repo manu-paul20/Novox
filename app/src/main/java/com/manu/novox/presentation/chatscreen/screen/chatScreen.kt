@@ -4,6 +4,11 @@ package com.manu.novox.presentation.chatscreen.screen
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,10 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,19 +32,19 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import com.manu.novox.data.local.entity.Message
-import com.manu.novox.presentation.chatlist.ChatListViewModel
 import com.manu.novox.presentation.chatscreen.ChatScreenEvents
 import com.manu.novox.presentation.chatscreen.ChatScreenViewmodel
 
@@ -73,6 +75,9 @@ fun ChatScreen(
         modifier = Modifier.imePadding(),
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFFF3EFE7)
+                ),
                 title = {Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -87,14 +92,18 @@ fun ChatScreen(
                         )
                     }
                     Spacer(Modifier.width(10.dp))
-                    Text(name)
+                    Text(
+                        text = name,
+                        fontSize = state.value.settings.appFontSize.sp
+                    )
                 }}
             )
         },
         bottomBar = {
-            Column{
+            Column(modifier = Modifier.background(Color(0xFFF3EFE7))){
                 if(state.value.imageUrl.isNotBlank()){
                     BadgedBox(
+                        modifier = Modifier.padding(10.dp),
                         badge = {
                             IconButton(
                                 onClick = {onEvent(ChatScreenEvents.ClearImage)}
@@ -103,14 +112,13 @@ fun ChatScreen(
                             }
                         },
                         content = {
-                            AsyncImage(
-                                model = state.value.imageUrl,
-                                modifier = Modifier
-                                    .size(200.dp)
-                                    .clip(RoundedCornerShape(20.dp))
-                                ,
-                                contentDescription = "selected image"
-                            )
+                                AsyncImage(
+                                    model = state.value.imageUrl,
+                                    contentScale = ContentScale.Crop,
+                                    contentDescription = "selected image",
+                                    modifier = Modifier.clip(RoundedCornerShape(10.dp))
+                                )
+
                         }
                     )
                 }
@@ -129,20 +137,26 @@ fun ChatScreen(
                     OutlinedTextField(
                         singleLine = true,
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(20.dp),
+                        shape = RoundedCornerShape(50),
                         value = state.value.message,
                         onValueChange = { onEvent(ChatScreenEvents.SetMessage(it)) }
                     )
-                    IconButton(
-                        onClick = {
-                            onEvent(ChatScreenEvents.SendMessage)
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Send,
-                            contentDescription = "send message"
-                        )
-                    }
+                   AnimatedVisibility(
+                       visible = state.value.message.isNotBlank() || state.value.imageUrl.isNotBlank(),
+                       enter = slideInHorizontally(),
+                       exit = slideOutHorizontally()
+                   ) {
+                       IconButton(
+                           onClick = {
+                               onEvent(ChatScreenEvents.SendMessage)
+                           }
+                       ) {
+                           Icon(
+                               imageVector = Icons.AutoMirrored.Filled.Send,
+                               contentDescription = "send message"
+                           )
+                       }
+                   }
                 }
             }
         }

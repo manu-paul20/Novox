@@ -11,6 +11,9 @@ interface SettingsDao {
     @Upsert
     suspend fun upsertSettings(settings: UserSettings)
 
-    @Query("select * from settings where id=1")
+    @Query("select * from settings")
     fun getSetting(): Flow<UserSettings>
+
+    @Query("update settings set userName=:newKey where userName='key0'")
+    suspend fun updateKey(newKey: String)
 }

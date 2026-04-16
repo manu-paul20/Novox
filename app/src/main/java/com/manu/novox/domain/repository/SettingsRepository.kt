@@ -7,4 +7,6 @@ interface SettingsRepository {
     suspend fun updateSettings(settings: UserSettings)
 
      fun getUserSettings(): Flow<UserSettings>
+
+    suspend fun updateKey(key: String)
 }

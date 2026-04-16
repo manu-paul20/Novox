@@ -40,7 +40,6 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun getAllMessages(userName: String): Flow<List<Message>> {
         val currentUser = userDao.getUserDetails()
         val chatId = getChatId(currentUser!!.userName, userName)
-
         firebaseJob?.cancel()
 
         firebaseJob = externalScope.launch {
