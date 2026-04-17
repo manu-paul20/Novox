@@ -12,8 +12,6 @@ sealed interface ChatScreenEvents {
 
     object ClearImage: ChatScreenEvents
 
-    object ClearChat: ChatScreenEvents
-
     object ToggleDropDown: ChatScreenEvents
 
     data class ShowImageInFullScreen(val imageUrl: String): ChatScreenEvents

@@ -116,34 +116,6 @@ fun ChatScreen(
                         modifier = Modifier.weight(1f),
                         fontSize = state.value.settings.appFontSize.sp
                     )
-                    Box {
-                        IconButton(
-                            onClick = {onEvent(ChatScreenEvents.ToggleDropDown)}
-                        ) {
-                            Icon(
-                                imageVector = if (state.value.isDropDownOpen) {
-                                    Icons.Default.Close
-                                } else {
-                                    Icons.Default.Menu
-                                },
-                                contentDescription = "menu"
-                            )
-
-                        }
-                        DropdownMenu(
-                            expanded = state.value.isDropDownOpen,
-                            onDismissRequest = { onEvent(ChatScreenEvents.ToggleDropDown) }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Clear Chat") },
-                                trailingIcon = { Icon(Icons.Default.CleaningServices, "") },
-                                onClick = {
-                                    onEvent(ChatScreenEvents.ClearChat)
-                                    onEvent(ChatScreenEvents.ToggleDropDown)
-                                }
-                            )
-                        }
-                    }
                 }}
             )
         },

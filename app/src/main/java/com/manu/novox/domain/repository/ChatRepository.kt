@@ -21,10 +21,6 @@ interface ChatRepository {
         onProgress:((String)-> Unit)?
     )
 
-    suspend fun clearChat(
-        receiverUserName: String
-    )
-
      fun syncAllContactsFromFirebase(coroutineScope: CoroutineScope)
 
     fun startListeningToInbox(coroutineScope: CoroutineScope)

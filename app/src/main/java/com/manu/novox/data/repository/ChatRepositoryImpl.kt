@@ -126,13 +126,6 @@ class ChatRepositoryImpl @Inject constructor(
 
     }
 
-    override suspend fun clearChat(receiverUserName: String) {
-        val currentUser = userDao.getUserDetails()
-        val chatId = getChatId(currentUser!!.userName,receiverUserName)
-        messageDao.deleteAllMessages(chatId) //only deletes local messages
-
-    }
-
      fun syncMessageFromFirebase(chatId: String): Flow<FirebaseUpdate> = callbackFlow {
         val messageRef = database.getReference(MyConstants.DATABASE.MESSAGES).child(chatId)
         val listener = object : ChildEventListener {

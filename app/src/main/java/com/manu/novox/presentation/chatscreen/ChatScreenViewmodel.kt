@@ -53,13 +53,6 @@ class ChatScreenViewmodel @Inject constructor(
 
     fun onEvent(event: ChatScreenEvents){
         when(event) {
-            ChatScreenEvents.ClearChat -> {
-                _state.update { it.copy(messagesList = emptyList()) }
-                viewModelScope.launch {
-                    chatRepository.clearChat(_state.value.userName)
-                }
-
-            }
             ChatScreenEvents.SendMessage -> {
                 if(_state.value.message.isBlank() && _state.value.imageUrl.isBlank()){
                     return
