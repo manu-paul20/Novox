@@ -9,6 +9,7 @@ data class ChatScreenState(
    val message: String = "",
     val imageUrl: String = "",
     val messagesList: List<Message> = emptyList(),
-    val isTyping: Boolean = false,
-    val settings: UserSettings = UserSettings()
+    val settings: UserSettings = UserSettings(),
+    val displayImageUrl: String = "",
+    val isDropDownOpen: Boolean = false
 )

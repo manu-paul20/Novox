@@ -1,17 +1,22 @@
 package com.manu.novox.presentation.chatscreen
 
+import android.app.DownloadManager
+import android.app.DownloadManager.Request
+import android.content.Context
+import android.os.Environment
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.manu.novox.data.local.dao.SettingsDao
+import com.manu.novox.core.utils.getImageExtension
 import com.manu.novox.domain.repository.ChatRepository
 import com.manu.novox.domain.repository.SettingsRepository
+import com.manu.novox.presentation.chatscreen.ChatScreenEffects.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -50,6 +55,10 @@ class ChatScreenViewmodel @Inject constructor(
         when(event) {
             ChatScreenEvents.ClearChat -> {
                 _state.update { it.copy(messagesList = emptyList()) }
+                viewModelScope.launch {
+                    chatRepository.clearChat(_state.value.userName)
+                }
+
             }
             ChatScreenEvents.SendMessage -> {
                 if(_state.value.message.isBlank() && _state.value.imageUrl.isBlank()){
@@ -81,13 +90,6 @@ class ChatScreenViewmodel @Inject constructor(
                 }
             }
 
-            ChatScreenEvents.ToggleTyping -> {
-                _state.update {
-                    it.copy(
-                        isTyping =  true
-                    )
-                }
-            }
 
             is ChatScreenEvents.SetImageUrl -> {
                 _state.update { it.copy(imageUrl = event.url) }
@@ -95,6 +97,33 @@ class ChatScreenViewmodel @Inject constructor(
 
             ChatScreenEvents.ClearImage -> {
                 _state.update { it.copy(imageUrl = "") }
+            }
+
+            is ChatScreenEvents.ShowImageInFullScreen -> {
+                _state.update { it.copy(displayImageUrl = event.imageUrl) }
+            }
+
+            ChatScreenEvents.CloseFullScreenImage -> {
+                _state.update { it.copy(displayImageUrl = "") }
+            }
+
+            is ChatScreenEvents.DownloadImage -> {
+                val imageExtension = getImageExtension(state.value.displayImageUrl)
+                val fileName = "Image${System.currentTimeMillis()}.$imageExtension"
+                val request = Request(_state.value.displayImageUrl.toUri())
+                    .setTitle(fileName)
+                    .setAllowedOverMetered(true)
+                    .setAllowedOverRoaming(true)
+                    .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,fileName)
+                    .setNotificationVisibility(Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                val downloadManager = event.context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                downloadManager.enqueue(request)
+                emitEffect(ShowToast("Downloading image.."))
+
+            }
+
+            ChatScreenEvents.ToggleDropDown -> {
+                _state.update { it.copy(isDropDownOpen = !it.isDropDownOpen) }
             }
         }
 

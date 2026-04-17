@@ -1,5 +1,7 @@
 package com.manu.novox.presentation.chatscreen
 
+import android.content.Context
+
 sealed interface ChatScreenEvents {
     data class SetUserDetails(val userName: String,val profilePhoto: String): ChatScreenEvents
 
@@ -12,5 +14,11 @@ sealed interface ChatScreenEvents {
 
     object ClearChat: ChatScreenEvents
 
-    object ToggleTyping: ChatScreenEvents
+    object ToggleDropDown: ChatScreenEvents
+
+    data class ShowImageInFullScreen(val imageUrl: String): ChatScreenEvents
+
+    object CloseFullScreenImage: ChatScreenEvents
+
+    data class DownloadImage(val context: Context): ChatScreenEvents
 }

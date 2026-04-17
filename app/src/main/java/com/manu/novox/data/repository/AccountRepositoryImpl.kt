@@ -6,6 +6,7 @@ import com.cloudinary.Cloudinary
 import com.cloudinary.utils.ObjectUtils
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.manu.novox.core.utils.getPublicIdFromUrl
 import com.manu.novox.core.utils.uploadToCloudinary
 import com.manu.novox.data.local.dao.SettingsDao
 import com.manu.novox.data.local.dao.UserDao
@@ -83,9 +84,7 @@ class AccountRepositoryImpl @Inject constructor(
 
     suspend fun deleteProfilePhoto(): Unit = withContext(Dispatchers.IO) {
         val currentPhotoUrl = userDao.getUserDetails()!!.profilePhoto
-        val publicId = currentPhotoUrl
-            .substringAfterLast("/")
-            .substringBeforeLast(".")
+        val publicId = getPublicIdFromUrl(currentPhotoUrl)
         val cloudinary = Cloudinary(MyConstants.CLOUDINARY.CLOUDINARY_CONFIG_MAP)
         cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap())
     }

@@ -1,6 +1,7 @@
 package com.manu.novox.presentation.chatscreen.screen
 
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,6 +35,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun MessageBubble(
     message: Message,
+    onClickImage:()-> Unit,
     settings: UserSettings
 ) {
         val formatter = DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneId.systemDefault())
@@ -53,6 +55,7 @@ fun MessageBubble(
                         AsyncImage(
                             model = message.image,
                             modifier = Modifier
+                                .clickable{onClickImage()}
                                 .size(100.dp)
                                 .clip(RoundedCornerShape(10.dp)),
                             contentDescription = "image",

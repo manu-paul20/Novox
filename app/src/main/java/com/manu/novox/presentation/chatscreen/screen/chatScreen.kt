@@ -2,6 +2,7 @@
 package com.manu.novox.presentation.chatscreen.screen
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -15,16 +16,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,11 +44,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.manu.novox.R
+import com.manu.novox.presentation.chatscreen.ChatScreenEffects
 import com.manu.novox.presentation.chatscreen.ChatScreenEvents
 import com.manu.novox.presentation.chatscreen.ChatScreenViewmodel
 
@@ -59,11 +67,21 @@ fun ChatScreen(
 
     val state = viewModel.state.collectAsStateWithLifecycle()
     val onEvent = viewModel::onEvent
+    val context = LocalContext.current
     val activityLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ){uri: Uri? ->
         uri?.let {
             onEvent(ChatScreenEvents.SetImageUrl(it.toString()))
+        }
+    }
+    LaunchedEffect(true) {
+        viewModel.effect.collect { effects ->
+            when (effects) {
+                is ChatScreenEffects.ShowToast -> {
+                    Toast.makeText(context, effects.message, Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 
@@ -88,14 +106,44 @@ fun ChatScreen(
                         AsyncImage(
                             contentScale = ContentScale.Crop,
                             model = profilePhoto,
+                            error = painterResource(R.drawable.defaultprofile),
                             contentDescription = "user profile photo"
                         )
                     }
                     Spacer(Modifier.width(10.dp))
                     Text(
                         text = name,
+                        modifier = Modifier.weight(1f),
                         fontSize = state.value.settings.appFontSize.sp
                     )
+                    Box {
+                        IconButton(
+                            onClick = {onEvent(ChatScreenEvents.ToggleDropDown)}
+                        ) {
+                            Icon(
+                                imageVector = if (state.value.isDropDownOpen) {
+                                    Icons.Default.Close
+                                } else {
+                                    Icons.Default.Menu
+                                },
+                                contentDescription = "menu"
+                            )
+
+                        }
+                        DropdownMenu(
+                            expanded = state.value.isDropDownOpen,
+                            onDismissRequest = { onEvent(ChatScreenEvents.ToggleDropDown) }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Clear Chat") },
+                                trailingIcon = { Icon(Icons.Default.CleaningServices, "") },
+                                onClick = {
+                                    onEvent(ChatScreenEvents.ClearChat)
+                                    onEvent(ChatScreenEvents.ToggleDropDown)
+                                }
+                            )
+                        }
+                    }
                 }}
             )
         },
@@ -164,6 +212,20 @@ fun ChatScreen(
         ChatScreenContent(
             modifier = Modifier.padding(innerPadding),
             state = state.value,
+            onClickChatImage = {
+                onEvent(ChatScreenEvents.ShowImageInFullScreen(it))
+            }
+        )
+    }
+    if (state.value.displayImageUrl.isNotBlank()) {
+        ImageShow(
+            imageUrl = state.value.displayImageUrl,
+            onClose = {
+                onEvent(ChatScreenEvents.CloseFullScreenImage)
+            },
+            onDownload = {
+                onEvent(ChatScreenEvents.DownloadImage(context))
+            }
         )
     }
 }
