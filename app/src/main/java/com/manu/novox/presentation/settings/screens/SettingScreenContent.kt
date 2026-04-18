@@ -1,5 +1,6 @@
 package com.manu.novox.presentation.settings.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,14 +20,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import com.manu.novox.presentation.settings.SettingsNav
 
 @Composable
-fun SettingScreenContent() {
+fun SettingScreenContent(
+    modifier: Modifier,
+    nav: SettingsNav
+) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top
     ) {
         ListItem(
+            modifier = Modifier.clickable(onClick = nav.onClickAccount),
             colors = ListItemDefaults.colors(
                 containerColor = Color.White
             ),
@@ -43,6 +49,8 @@ fun SettingScreenContent() {
         HorizontalDivider()
 
         ListItem(
+            modifier = Modifier.clickable(onClick = nav.onClickPersonalization),
+
             colors = ListItemDefaults.colors(
                 containerColor = Color.White
             ),
@@ -64,6 +72,8 @@ fun SettingScreenContent() {
         HorizontalDivider()
 
         ListItem(
+            modifier = Modifier.clickable(onClick = nav.onClickAbout),
+
             colors = ListItemDefaults.colors(
                 containerColor = Color.White
             ),

@@ -27,12 +27,12 @@ import com.manu.novox.core.utils.NovoxColors
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ColorPicker(
-    color: String,
+    color: NovoxColors,
     text: String,
     expanded: Boolean,
     onExpandChange: (Boolean) -> Unit,
     onClick: () -> Unit,
-    onSelect:(String)-> Unit
+    onSelect:(NovoxColors)-> Unit
 ) {
     Row(
         modifier = Modifier
@@ -49,14 +49,14 @@ fun ColorPicker(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onClick }
+                        .clickable { onClick() }
                         .background(color = Color.Gray, shape = RoundedCornerShape(10.dp))
                         .menuAnchor(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = color.ifBlank { "Select" },
+                        text = color.name,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.weight(1f)
                     )
@@ -68,8 +68,8 @@ fun ColorPicker(
                     content = {
                         NovoxColors.entries.forEach {
                             DropdownMenuItem(
-                                text = { it.name },
-                                onClick = { onSelect(it.name)}
+                                text = { Text(it.name) },
+                                onClick = { onSelect(it)}
                             )
                         }
                     }
