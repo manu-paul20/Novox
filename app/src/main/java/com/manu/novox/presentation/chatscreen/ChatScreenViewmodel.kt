@@ -114,10 +114,6 @@ class ChatScreenViewmodel @Inject constructor(
                 emitEffect(ShowToast("Downloading image.."))
 
             }
-
-            ChatScreenEvents.ToggleDropDown -> {
-                _state.update { it.copy(isDropDownOpen = !it.isDropDownOpen) }
-            }
         }
 
     }
