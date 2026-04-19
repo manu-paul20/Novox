@@ -64,7 +64,9 @@ fun PersonalizationScreen(
                 )
             }
         )
+        Spacer(Modifier.height(10.dp))
         HorizontalDivider()
+        Spacer(Modifier.height(10.dp))
 
         // chat font size
         ListItem(
@@ -78,8 +80,9 @@ fun PersonalizationScreen(
                 )
             }
         )
-
-
+        Spacer(Modifier.height(10.dp))
+        HorizontalDivider()
+        Spacer(Modifier.height(10.dp))
         // font family drop down
         Row(
             modifier = Modifier
@@ -132,7 +135,9 @@ fun PersonalizationScreen(
                 }
             )
         }
-
+        Spacer(Modifier.height(10.dp))
+        HorizontalDivider()
+        Spacer(Modifier.height(10.dp))
 
         //font style buttons
         Row(
@@ -161,6 +166,9 @@ fun PersonalizationScreen(
                 }
             )
         }
+        Spacer(Modifier.height(10.dp))
+        HorizontalDivider()
+        Spacer(Modifier.height(10.dp))
 
         ColorPicker(
             color = state.settings.textColor,
@@ -173,7 +181,9 @@ fun PersonalizationScreen(
                 onEvent(PersonalizationEvents.OnTextColorDropDown(it))
             }
         )
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(10.dp))
+        HorizontalDivider()
+        Spacer(Modifier.height(10.dp))
         ColorPicker(
             color = state.settings.messageBoxColor,
             text = "My message box color",
@@ -185,8 +195,9 @@ fun PersonalizationScreen(
                 onEvent(PersonalizationEvents.OnMessageBoxColorDropDown(it))
             }
         )
-        Spacer(Modifier.height(20.dp))
-
+        Spacer(Modifier.height(10.dp))
+        HorizontalDivider()
+        Spacer(Modifier.height(10.dp))
         ColorPicker(
             color = state.settings.friendMessageBoxColor,
             text = "friends message box Color",

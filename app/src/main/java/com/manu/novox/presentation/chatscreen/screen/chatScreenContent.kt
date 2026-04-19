@@ -31,7 +31,6 @@ fun ChatScreenContent(
     }
 
     LazyColumn(
-
         state = lazyState,
         modifier = modifier
             .fillMaxSize()

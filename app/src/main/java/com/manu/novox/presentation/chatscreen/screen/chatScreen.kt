@@ -159,6 +159,8 @@ fun ChatScreen(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(50),
                         value = state.value.message,
+                        label = {Text("Message")},
+                        placeholder = {Text("Hello")},
                         onValueChange = { onEvent(ChatScreenEvents.SetMessage(it)) }
                     )
                    AnimatedVisibility(

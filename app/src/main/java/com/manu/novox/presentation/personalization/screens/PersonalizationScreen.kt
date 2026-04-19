@@ -73,7 +73,7 @@ fun PersonalizationScreen(
                 text = "Personalizations",
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .padding(top = 20.dp)
+                    .padding(top = 50.dp)
                     .fillMaxWidth(),
                 fontWeight = FontWeight.Bold,
                 fontSize = 30.sp
