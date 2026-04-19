@@ -1,15 +1,23 @@
 package com.manu.novox.presentation.personalization
 
+import android.util.Log
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.manu.novox.data.local.entity.UserSettings
 import com.manu.novox.domain.repository.SettingsRepository
 import com.manu.novox.presentation.personalization.PersonalizationEffects.ShowToast
+import com.manu.novox.presentation.personalization.screens.PersonalizationScreen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -19,10 +27,28 @@ class PersonalizationViewmodel @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(PersonalizationState())
-    val state = _state.asStateFlow()
+    private val _settings = MutableStateFlow(UserSettings())
+
+
+    val state = combine(_state,_settings){state,settings->
+        state.copy(
+            settings = settings
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), PersonalizationState())
 
     private val _effects = MutableSharedFlow<PersonalizationEffects>()
     val effect = _effects.asSharedFlow()
+
+    fun loadSettings(){
+        viewModelScope.launch {
+            val setting = settingsRepository.getUserSettings().firstOrNull()
+            setting?.let {
+                _settings.update {
+                    setting.copy()
+                }
+            }
+        }
+    }
 
     fun onEvent(events: PersonalizationEvents) {
         when (events) {
@@ -31,19 +57,23 @@ class PersonalizationViewmodel @Inject constructor(
             }
 
             is PersonalizationEvents.OnFontFamilyDropDownChange -> {
-                _state.value = _state.value.copy(
-                    isFontFamilyDropDownOpen = events.value
-                )
+               _state.update {
+                   it.copy(
+                       isFontFamilyDropDownOpen = events.value
+                   )
+               }
             }
 
             is PersonalizationEvents.OnFontFamilyChange -> {
-                _state.value = _state.value.copy(
-                    fontFamily = events.fontFamily
-                )
+                _settings.update {
+                    it.copy(
+                        fontFamily = events.fontFamily
+                    )
+                }
             }
 
             is PersonalizationEvents.OnTextFontSizeChange -> {
-                _state.update {
+                _settings.update {
                     it.copy(
                         textFontSize = events.fontSize
                     )
@@ -51,7 +81,7 @@ class PersonalizationViewmodel @Inject constructor(
             }
 
             is PersonalizationEvents.OnAppFontSizeChange -> {
-                _state.update {
+                _settings.update {
                     it.copy(
                         appFontSize = events.fontSize
                     )
@@ -59,7 +89,7 @@ class PersonalizationViewmodel @Inject constructor(
             }
 
             is PersonalizationEvents.OnFontStyleChange -> {
-                _state.update {
+                _settings.update {
                     it.copy(
                         fontStyle = events.fontStyle
                     )
@@ -67,64 +97,63 @@ class PersonalizationViewmodel @Inject constructor(
             }
 
             is PersonalizationEvents.OnFriendMessageBoxColorChange -> {
-                _state.update {
+                _settings.update {
                     it.copy(
                         friendMessageBoxColor = events.color
+                    )
+                }
+                _state.update {
+                    it.copy(
+                        isFriendsMessageBoxColorDropDownOpen = false
                     )
                 }
             }
 
             is PersonalizationEvents.OnMessageBoxColorChange -> {
+                _settings.update { it.copy(
+                    messageBoxColor = events.color,
+                ) }
                 _state.update {
                     it.copy(
-                        messageBoxColor = events.color
+                        isMyMessageBoxColorDropDownOpen = false
                     )
                 }
             }
 
             is PersonalizationEvents.OnTextColorChange -> {
+                _settings.update { it.copy(
+                    textColor = events.color,
+                ) }
                 _state.update {
                     it.copy(
-                        textColor = events.color
+                        isTextColorDropDownOpen = false
                     )
                 }
             }
 
             PersonalizationEvents.Save -> {
                 viewModelScope.launch {
-                    val settings = _state.value.run {
-                        UserSettings().copy(
-                            fontFamily = fontFamily,
-                            fontStyle = fontStyle,
-                            textFontSize = textFontSize,
-                            appFontSize = appFontSize,
-                            messageBoxColor = messageBoxColor,
-                            textColor = textColor,
-                            friendMessageBoxColor = friendMessageBoxColor
-                        )
-                    }
-                    settingsRepository.updateSettings(settings)
+                    settingsRepository.updateSettings(_settings.value)
                     emitEffect(ShowToast("Settings Saved"))
-                    emitEffect(PersonalizationEffects.NavigateToSettings)
                 }
             }
 
             is PersonalizationEvents.OnFriendMessageBoxColorDropDown -> {
-                _state.value = _state.value.copy(
-                    isFriendsMessageBoxColorDropDownOpen = events.value
-                )
+                _state.update {
+                    it.copy(isFriendsMessageBoxColorDropDownOpen = events.value)
+                }
             }
 
             is PersonalizationEvents.OnMessageBoxColorDropDown -> {
-                _state.value = _state.value.copy(
-                    isMyMessageBoxColorDropDownOpen = events.value
-                )
+                _state.update {
+                    it.copy(isMyMessageBoxColorDropDownOpen = events.value)
+                }
             }
 
             is PersonalizationEvents.OnTextColorDropDown -> {
-                _state.value = _state.value.copy(
-                    isTextColorDropDownOpen = events.value
-                )
+                _state.update {
+                    it.copy(isTextColorDropDownOpen = events.value)
+                }
             }
         }
     }

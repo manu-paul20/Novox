@@ -17,4 +17,7 @@ sealed interface Routes {
 
     @Serializable
     object SettingsScreen: Routes
+
+    @Serializable
+    object Personalization: Routes
 }

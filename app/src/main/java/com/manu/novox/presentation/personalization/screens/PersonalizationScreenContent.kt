@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -56,7 +57,7 @@ fun PersonalizationScreen(
             headlineContent = { Text("App font size") },
             supportingContent = {
                 FontSlider(
-                    value = state.appFontSize.toFloat(),
+                    value = state.settings.appFontSize.toFloat(),
                     onValueChange = {
                         onEvent(PersonalizationEvents.OnAppFontSizeChange(it.toInt()))
                     }
@@ -70,7 +71,7 @@ fun PersonalizationScreen(
             headlineContent = { Text("Chat font size") },
             supportingContent = {
                 FontSlider(
-                    value = state.textFontSize.toFloat(),
+                    value = state.settings.textFontSize.toFloat(),
                     onValueChange = {
                         onEvent(PersonalizationEvents.OnTextFontSizeChange(it.toInt()))
                     }
@@ -98,20 +99,13 @@ fun PersonalizationScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable {
-                                onEvent(
-                                    PersonalizationEvents.OnFontFamilyDropDownChange(
-                                        true
-                                    )
-                                )
-                            }
                             .background(color = Color.Gray, shape = RoundedCornerShape(10.dp))
                             .menuAnchor(),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = state.fontFamily.name,
+                            text = state.settings.fontFamily.name,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.weight(1f)
                         )
@@ -155,7 +149,7 @@ fun PersonalizationScreen(
                 content = {
                     NovoxFontStyle.entries.forEachIndexed { index, style ->
                         SegmentedButton(
-                            selected = (state.fontStyle == style),
+                            selected = (state.settings.fontStyle == style),
                             onClick = { onEvent(PersonalizationEvents.OnFontStyleChange(style)) },
                             label = { Text(style.name) },
                             shape = SegmentedButtonDefaults.itemShape(
@@ -169,10 +163,9 @@ fun PersonalizationScreen(
         }
 
         ColorPicker(
-            color = state.textColor,
+            color = state.settings.textColor,
             text = "Text Color",
             expanded = state.isTextColorDropDownOpen,
-            onClick = { onEvent(PersonalizationEvents.OnTextColorDropDown(true)) },
             onSelect = {
                 onEvent(PersonalizationEvents.OnTextColorChange(it))
             },
@@ -180,11 +173,11 @@ fun PersonalizationScreen(
                 onEvent(PersonalizationEvents.OnTextColorDropDown(it))
             }
         )
+        Spacer(Modifier.height(20.dp))
         ColorPicker(
-            color = state.messageBoxColor,
+            color = state.settings.messageBoxColor,
             text = "My message box color",
-            expanded = state.isTextColorDropDownOpen,
-            onClick = { onEvent(PersonalizationEvents.OnMessageBoxColorDropDown(true)) },
+            expanded = state.isMyMessageBoxColorDropDownOpen,
             onSelect = {
                 onEvent(PersonalizationEvents.OnMessageBoxColorChange(it))
             },
@@ -192,11 +185,12 @@ fun PersonalizationScreen(
                 onEvent(PersonalizationEvents.OnMessageBoxColorDropDown(it))
             }
         )
+        Spacer(Modifier.height(20.dp))
+
         ColorPicker(
-            color = state.friendMessageBoxColor,
+            color = state.settings.friendMessageBoxColor,
             text = "friends message box Color",
-            expanded = state.isTextColorDropDownOpen,
-            onClick = { onEvent(PersonalizationEvents.OnFriendMessageBoxColorDropDown(true)) },
+            expanded = state.isFriendsMessageBoxColorDropDownOpen,
             onSelect = {
                 onEvent(PersonalizationEvents.OnFriendMessageBoxColorChange(it))
             },

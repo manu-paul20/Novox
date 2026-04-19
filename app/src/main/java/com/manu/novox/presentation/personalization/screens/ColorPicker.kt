@@ -31,7 +31,6 @@ fun ColorPicker(
     text: String,
     expanded: Boolean,
     onExpandChange: (Boolean) -> Unit,
-    onClick: () -> Unit,
     onSelect:(NovoxColors)-> Unit
 ) {
     Row(
@@ -40,7 +39,7 @@ fun ColorPicker(
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("Font Family")
+        Text(text)
         Spacer(Modifier.width(10.dp))
         ExposedDropdownMenuBox(
             expanded = expanded,
@@ -49,7 +48,6 @@ fun ColorPicker(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onClick() }
                         .background(color = Color.Gray, shape = RoundedCornerShape(10.dp))
                         .menuAnchor(),
                     horizontalArrangement = Arrangement.Center,
