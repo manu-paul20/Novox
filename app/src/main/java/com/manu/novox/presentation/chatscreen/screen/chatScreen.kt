@@ -105,6 +105,7 @@ fun ChatScreen(
                         shape = CircleShape
                     ){
                         AsyncImage(
+                            modifier = Modifier.size(50.dp),
                             contentScale = ContentScale.Crop,
                             model = profilePhoto,
                             error = painterResource(R.drawable.defaultprofile),
