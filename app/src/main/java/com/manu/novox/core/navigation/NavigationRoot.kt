@@ -49,8 +49,8 @@ fun NavigationRoot() {
     ) { innerPadding ->
         NavHost(
             enterTransition = { slideInHorizontally { it } },
-            exitTransition = { slideOutHorizontally { -it } },
             navController = navController,
+            popEnterTransition = {slideInHorizontally{-it}},
             startDestination = Routes.AuthScreen
         ) {
             composable<Routes.AuthScreen>{
