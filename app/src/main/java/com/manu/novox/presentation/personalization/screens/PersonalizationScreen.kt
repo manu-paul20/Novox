@@ -7,11 +7,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -23,6 +28,7 @@ import com.manu.novox.presentation.personalization.PersonalizationEffects
 import com.manu.novox.presentation.personalization.PersonalizationEvents
 import com.manu.novox.presentation.personalization.PersonalizationViewmodel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PersonalizationScreen(
     navigateToSettings:()-> Unit,
@@ -53,6 +59,10 @@ fun PersonalizationScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFF3EDF7),
+                        contentColor = Color(0xFF6750A4)
+                    ),
                     modifier = Modifier.weight(1f),
                     onClick = {onEvent(PersonalizationEvents.Close)}
                 ) {
@@ -69,14 +79,19 @@ fun PersonalizationScreen(
         },
         topBar = {
 
-            Text(
-                text = "Personalizations",
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(top = 50.dp)
-                    .fillMaxWidth(),
-                fontWeight = FontWeight.Bold,
-                fontSize = 30.sp
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF9F6F0)),
+                title = {
+                    Text(
+                        text = "Personalizations",
+                        color = Color(0xFF1C1B1F),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 30.sp
+                    )
+                }
             )
         }
     ) {

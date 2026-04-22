@@ -1,6 +1,7 @@
 package com.manu.novox.presentation.personalization.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -48,8 +49,9 @@ fun ColorPicker(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(color = Color.Gray, shape = RoundedCornerShape(10.dp))
-                        .menuAnchor(),
+                        .background(color = Color(0xFFF3EDF7), shape = RoundedCornerShape(10.dp))
+                        .menuAnchor()
+                        .border(1.dp,Color(0xFF79747E), shape = RoundedCornerShape(10.dp)),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -58,7 +60,11 @@ fun ColorPicker(
                         textAlign = TextAlign.Center,
                         modifier = Modifier.weight(1f)
                     )
-                    Icon(Icons.Default.ArrowDropDown, "")
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = "",
+                        tint = Color(0XFF49454F)
+                        )
                 }
                 ExposedDropdownMenu(
                     expanded = expanded,

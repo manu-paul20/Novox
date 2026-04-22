@@ -99,7 +99,7 @@ fun NavigationRoot() {
 
             composable<Routes.Personalization> {
                 PersonalizationScreen(
-                    navigateToSettings = {navController.navigate(Routes.SettingsScreen)}
+                    navigateToSettings = {navController.popBackStack()}
                 )
             }
         }

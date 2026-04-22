@@ -26,14 +26,17 @@ fun FontSlider(
         onValueChange = onValueChange,
         steps = 9,
         colors = SliderDefaults.colors(
-            activeTrackColor = Color.Black
+            activeTrackColor = Color(0xFF6750A4),
+            inactiveTrackColor = Color(0xFFE8DEF8),
+            activeTickColor = Color(0xFFFFFFFF),
+            inactiveTickColor = Color(0xFF6750A4)
         ),
         valueRange = 10f..20f,
         thumb = {
             Box(
                 modifier = Modifier
                     .size(30.dp)
-                    .background(color = Color.Black, shape = CircleShape),
+                    .background(color = Color(0xFF6750A4), shape = CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(

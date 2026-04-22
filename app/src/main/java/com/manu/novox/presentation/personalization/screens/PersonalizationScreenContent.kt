@@ -1,11 +1,12 @@
 package com.manu.novox.presentation.personalization.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,6 +22,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -48,12 +50,15 @@ fun PersonalizationScreen(
 
     Column(
         modifier = modifier
+            .fillMaxSize()
+            .background(Color(0xFFF9F6F0))
             .padding(10.dp)
             .verticalScroll(rememberScrollState())
     ) {
 
         // app font size
         ListItem(
+            colors = ListItemDefaults.colors(containerColor = Color(0xFFF9F6F0)),
             headlineContent = { Text("App font size") },
             supportingContent = {
                 FontSlider(
@@ -70,6 +75,7 @@ fun PersonalizationScreen(
 
         // chat font size
         ListItem(
+            colors = ListItemDefaults.colors(containerColor = Color(0xFFF9F6F0)),
             headlineContent = { Text("Chat font size") },
             supportingContent = {
                 FontSlider(
@@ -102,7 +108,11 @@ fun PersonalizationScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(color = Color.Gray, shape = RoundedCornerShape(10.dp))
+                            .background(
+                                color = Color(0xFFF3EDF7),
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .border(1.dp, Color(0xFF79747E), shape = RoundedCornerShape(10.dp))
                             .menuAnchor(),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
@@ -154,6 +164,11 @@ fun PersonalizationScreen(
                 content = {
                     NovoxFontStyle.entries.forEachIndexed { index, style ->
                         SegmentedButton(
+                            colors = SegmentedButtonDefaults.colors(
+                                activeContainerColor = Color(0xFFE8DEF8),
+                                inactiveContainerColor = Color.Transparent,
+                                inactiveContentColor = Color(0xFF49454F)
+                            ),
                             selected = (state.settings.fontStyle == style),
                             onClick = { onEvent(PersonalizationEvents.OnFontStyleChange(style)) },
                             label = { Text(style.name) },
