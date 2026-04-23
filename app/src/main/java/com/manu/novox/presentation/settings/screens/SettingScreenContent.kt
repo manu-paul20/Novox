@@ -1,5 +1,6 @@
 package com.manu.novox.presentation.settings.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,68 +29,34 @@ fun SettingScreenContent(
     nav: SettingsNav
 ) {
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .background(Color(0xFFF9F6F0))
+            .fillMaxSize(),
         verticalArrangement = Arrangement.Top
     ) {
-        ListItem(
-            modifier = Modifier.clickable(onClick = nav.onClickAccount),
-            colors = ListItemDefaults.colors(
-                containerColor = Color.White
-            ),
-            headlineContent = { Text(
-               text =  "Account",
-                fontWeight = FontWeight.Bold
-            ) },
-            supportingContent = { Text("Know about your account") },
-            leadingContent = { Icon(
-                imageVector = Icons.Default.AccountCircle,
-                contentDescription = "Account settings"
-            ) }
-        )
+       SettingsListItem(
+           onClick = {nav.onClickAccount()},
+           headLineText = "Account",
+           supportingText = "Manage your account",
+           icon = Icons.Default.AccountCircle
+       )
         HorizontalDivider()
+        SettingsListItem(
+            onClick = {nav.onClickPersonalization()},
+            headLineText = "Personalization",
+            supportingText = "Customize your app",
+            icon = Icons.Default.Brush
 
-        ListItem(
-            modifier = Modifier.clickable(onClick = nav.onClickPersonalization),
-
-            colors = ListItemDefaults.colors(
-                containerColor = Color.White
-            ),
-            headlineContent = {
-                Text(
-                    text = "Personalization",
-                    fontWeight = FontWeight.Bold
-                )
-            },
-            leadingContent = {Icon(
-                imageVector = Icons.Default.Brush,
-                contentDescription = "personalization"
-            )},
-            supportingContent = {
-                Text("Customize the app")
-            }
         )
 
         HorizontalDivider()
 
-        ListItem(
-            modifier = Modifier.clickable(onClick = nav.onClickAbout),
-
-            colors = ListItemDefaults.colors(
-                containerColor = Color.White
-            ),
-            headlineContent = {Text(
-                text = "About App",
-                fontWeight = FontWeight.Bold
-            )},
-            leadingContent = {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = "About app"
-                )
-            },
-            supportingContent = {
-                Text("Know about the app")
-            }
+        SettingsListItem(
+            onClick = {nav.onClickAbout()},
+            headLineText = "About",
+            supportingText = "About the app",
+            icon = Icons.Default.Info
         )
+
     }
 }
