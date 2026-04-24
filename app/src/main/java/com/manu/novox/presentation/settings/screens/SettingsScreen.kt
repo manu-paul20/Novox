@@ -42,7 +42,8 @@ fun SettingScreen(
     ) {innerpadding->
         SettingScreenContent(
             modifier = Modifier.padding(innerpadding),
-            onClickPersonalization = onCLickPersonalization
+            onClickPersonalization = onCLickPersonalization,
+            onEvent = onEvent
         )
     }
 

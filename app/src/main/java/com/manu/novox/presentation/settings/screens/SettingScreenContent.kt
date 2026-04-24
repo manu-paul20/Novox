@@ -21,11 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import com.manu.novox.presentation.settings.SettingsEvent
 
 @Composable
 fun SettingScreenContent(
     modifier: Modifier,
-    onClickPersonalization:()-> Unit
+    onClickPersonalization:()-> Unit,
+    onEvent: (SettingsEvent) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -34,7 +36,7 @@ fun SettingScreenContent(
         verticalArrangement = Arrangement.Top
     ) {
        SettingsListItem(
-           onClick = {},
+           onClick = {onEvent(SettingsEvent.OpenAboutAccountPopUp)},
            headLineText = "Account",
            supportingText = "Manage your account",
            icon = Icons.Default.AccountCircle
@@ -51,7 +53,7 @@ fun SettingScreenContent(
         HorizontalDivider()
 
         SettingsListItem(
-            onClick = {nav.onClickAbout()},
+            onClick = {onEvent(SettingsEvent.OpenAboutAppPopUp)},
             headLineText = "About",
             supportingText = "About the app",
             icon = Icons.Default.Info
