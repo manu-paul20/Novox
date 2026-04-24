@@ -17,7 +17,6 @@ import com.manu.novox.presentation.auth.screen.AuthScreen
 import com.manu.novox.presentation.chatlist.screen.ChatListScreen
 import com.manu.novox.presentation.chatscreen.screen.ChatScreen
 import com.manu.novox.presentation.personalization.screens.PersonalizationScreen
-import com.manu.novox.presentation.settings.SettingsNav
 import com.manu.novox.presentation.settings.screens.SettingScreen
 import okhttp3.Route
 
@@ -89,12 +88,9 @@ fun NavigationRoot() {
             }
 
             composable<Routes.SettingsScreen> {
-                val nav = SettingsNav(
-                    onClickAbout = {},
-                    onClickAccount = {},
-                    onClickPersonalization = {navController.navigate(Routes.Personalization)}
+                SettingScreen(
+                    onCLickPersonalization = {navController.navigate(Routes.Personalization)}
                 )
-                SettingScreen(nav = nav)
             }
 
             composable<Routes.Personalization> {

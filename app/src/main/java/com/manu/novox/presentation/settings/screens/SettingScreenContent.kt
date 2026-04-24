@@ -21,12 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import com.manu.novox.presentation.settings.SettingsNav
 
 @Composable
 fun SettingScreenContent(
     modifier: Modifier,
-    nav: SettingsNav
+    onClickPersonalization:()-> Unit
 ) {
     Column(
         modifier = modifier
@@ -35,14 +34,14 @@ fun SettingScreenContent(
         verticalArrangement = Arrangement.Top
     ) {
        SettingsListItem(
-           onClick = {nav.onClickAccount()},
+           onClick = {},
            headLineText = "Account",
            supportingText = "Manage your account",
            icon = Icons.Default.AccountCircle
        )
         HorizontalDivider()
         SettingsListItem(
-            onClick = {nav.onClickPersonalization()},
+            onClick = {onClickPersonalization()},
             headLineText = "Personalization",
             supportingText = "Customize your app",
             icon = Icons.Default.Brush

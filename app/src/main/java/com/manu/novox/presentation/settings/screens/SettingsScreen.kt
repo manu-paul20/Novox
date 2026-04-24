@@ -7,15 +7,29 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.manu.novox.presentation.settings.SettingsNav
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.manu.novox.presentation.settings.SettingsEvent
+import com.manu.novox.presentation.settings.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(
-    nav: SettingsNav
+    onCLickPersonalization: () -> Unit,
+    viewModel: SettingsViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(
+        Unit
+    ) {
+        viewModel.getAccountDetails()
+    }
+
+    val state = viewModel.state.collectAsStateWithLifecycle().value
+    val onEvent = viewModel::onEvent
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -28,7 +42,23 @@ fun SettingScreen(
     ) {innerpadding->
         SettingScreenContent(
             modifier = Modifier.padding(innerpadding),
-            nav = nav
+            onClickPersonalization = onCLickPersonalization
         )
     }
+
+    if (state.isAboutAppPopUpOpen) {
+        AboutTheAppPopUp(
+            state = state,
+            onDismiss = { onEvent(SettingsEvent.CloseAboutAppPopUp) }
+        )
+    }
+
+    if (state.isAboutAccountPopUpOpen) {
+        AboutAccountPopUp(
+            state = state,
+            onDismiss = { onEvent(SettingsEvent.CloseAboutAccountPopUp) }
+        )
+    }
+
+
 }
