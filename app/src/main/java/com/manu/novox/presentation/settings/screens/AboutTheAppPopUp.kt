@@ -113,7 +113,7 @@ fun AboutTheAppPopUp(
                     text2 = "manupaul535@gmail.com",
                     icon = Icons.Default.ContentCopy,
                     onClickIcon = {
-                        clipManager.setText(AnnotatedString("manupaul200@gmail.com"))
+                        clipManager.setText(AnnotatedString("manupaul535@gmail.com"))
 
                         Toast.makeText(
                             context,

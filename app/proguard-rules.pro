@@ -1,8 +1,10 @@
 # Novox R8/ProGuard Rules
 
 # --- Kotlin Serialization ---
-# Keep the serializable classes and their serializers
--keepattributes *Annotation*, InnerClasses
+-keepattributes *Annotation*, InnerClasses, EnclosingMethod, Signature
+-keepclassmembers class **$serializer {
+    public static ** INSTANCE;
+}
 -keepclassmembers class com.manu.novox.** {
     *** Companion;
     *** $serializer;
@@ -11,10 +13,9 @@
 -keepclassmembers class com.manu.novox.** {
     @kotlinx.serialization.SerialName <fields>;
 }
+-keepnames class kotlinx.serialization.internal.EnumSerializer
 
 # --- Firebase Realtime Database ---
-# Firebase uses reflection to map data to these classes.
-# We need to keep the classes, their fields, and the default no-arg constructors.
 -keepattributes Signature
 -keep class com.manu.novox.data.local.entity.** {
     public <fields>;
@@ -24,23 +25,37 @@
     public <fields>;
     public <init>(...);
 }
+-keep class com.google.firebase.database.** { *; }
+
+# --- Cloudinary ---
+-keep class com.cloudinary.** { *; }
+# Cloudinary has optional dependencies on Glide and Picasso
+-dontwarn com.bumptech.glide.**
+-dontwarn com.squareup.picasso.**
+
+# --- Room ---
+-keep class * extends androidx.room.RoomDatabase
+-keep class com.manu.novox.data.local.entity.** { *; }
 
 # --- Hilt / Dagger ---
-# Hilt usually provides its own rules, but these ensure reflection-based lookups work.
--keepattributes *Annotation*
 -keep class * extends androidx.lifecycle.ViewModel {
     public <init>(...);
 }
 
-# --- Room ---
-# Room handles most rules itself, but keeping the entities is safe for reflection/debugging.
--keep class com.manu.novox.data.local.entity.** { *; }
-
 # --- Navigation Component ---
-# Needed for type-safe navigation with Kotlin Serialization
 -keep class com.manu.novox.core.navigation.Routes** { *; }
+-keep class * implements com.manu.novox.core.navigation.Routes { *; }
+
+# --- Enums ---
+# Keep enum members that might be accessed via reflection (Serialization/Firebase/Room)
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+# --- Others / Constants ---
+-keep class com.manu.novox.others.** { *; }
 
 # --- General ---
-# Keep line numbers for better crash reports
 -keepattributes SourceFile, LineNumberTable
 -renamesourcefileattribute SourceFile
